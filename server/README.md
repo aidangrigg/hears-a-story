@@ -1,7 +1,20 @@
 # Hear's a Story Server
 
-## Installing/Running
+## Setup
 
 ```bash
-npm install && npm run start
+npm install
 ```
+
+## Run dev server
+
+```bash
+npm run dev
+```
+
+## Build & run
+
+```bash
+npm run build && npm run start
+```
+
