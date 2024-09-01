@@ -3,5 +3,5 @@
 ## Installing/Running
 
 ```bash
-npm run install && npm run start
+npm install && npm run start
 ```
