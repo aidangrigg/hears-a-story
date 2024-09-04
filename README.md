@@ -1,4 +1,4 @@
-Due to the seperation of front and back end proper installation commands can brick your files.
+Due to the seperation of front-end and back-end improper installation commands can brick your files.
 
 Here is how to open the front-end of the application WITHOUT bricking anything according to current design of application. 
 
