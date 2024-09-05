@@ -1,0 +1,75 @@
+Partially altered logic prototype for audio streaming: 
+
+    let recordAudio;
+
+    const socketio = io();
+    const socket = socketio.on('connect', function() {
+        startRecording.disabled = false;
+    });
+
+    startRecording.onclick = function() {
+        startRecording.disabled = true;
+
+        navigator.getUserMedia({
+            audio: true
+        }, function(stream) {
+                recordAudio = RecordRTC(stream, {
+                type: 'audio',
+                mimeType: 'audio/webm',
+                sampleRate: 44100,
+                desiredSampRate: 16000,
+                
+                recorderType: StereoAudioRecorder,
+                numberOfAudioChannels: 1,
+
+
+                // get intervals based blobs
+                // value in milliseconds
+                // as you might not want to make detect calls every seconds
+                timeSlice: 4000,
+
+                // as soon as the stream is available
+                ondataavailable: function(blob) {
+
+                    // making use of socket.io-stream for bi-directional
+                    // streaming, create a stream
+                    var stream = ss.createStream();
+                    // stream directly to server
+                    // it will be temp. stored locally
+                    ss(socket).emit('stream', stream, {
+                        name: 'stream.wav', 
+                        size: blob.size
+                    });
+                    // pipe the audio blob to the read stream
+                    ss.createBlobReadStream(blob).pipe(stream);
+                }
+            });
+
+            recordAudio.startRecording();
+            stopRecording.disabled = false;
+        }, function(error) {
+            console.error(JSON.stringify(error));
+        });
+    };
+
+    // on stop button handler
+    stopRecording.onclick = function() {
+        // recording stopped
+        startRecording.disabled = false;
+        stopRecording.disabled = true;
+    };
+
+    const resultpreview = document.getElementById('results');
+    
+    socketio.on('results', function (data) {
+        console.log(data);
+        if(data.results){
+	    if (data.results.text.includes("end") && data.results.text.includes("recording")){
+		 startRecording.disabled = false;
+        	 stopRecording.disabled = true;
+		 // Strip the "end recording" from the message first.
+		 resultpreview.innerHTML += "" + data.results.text;
+	    }
+            resultpreview.innerHTML += "" + data.results.text;
+        }
+    });
