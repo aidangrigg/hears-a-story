@@ -1,4 +1,5 @@
 import { Text, View } from "react-native";
+// import { pipeline } from '@xenova/transformers';
 
 export default function Index() {
   return (
