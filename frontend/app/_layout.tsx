@@ -1,37 +1,58 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import { Stack } from "expo-router";
+import { Image, Text, View, StyleSheet } from 'react-native';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
-
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
-
+function LogoTitle() {
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </ThemeProvider>
+    <View style={styles.titleContainer}>
+      <Text style={styles.headerText}>HEARS A STORY </Text>
+      <Image style={styles.logo} source={require('@/assets/images/hears-a-story-logo.png')}/>
+      
+      
+      
+    </View>
+    
   );
 }
+
+export default function RootLayout() {
+  return (
+    <Stack>
+
+      <Stack.Screen 
+      name="storyPage" 
+      options={{
+        headerStyle: { backgroundColor: 'rgba(25, 38, 55, 1)'},
+        headerTitleStyle: { fontWeight: 'bold',},
+        headerTitle: props => <LogoTitle/>,
+        headerTintColor: '#fff',
+      }
+      }/> 
+    </Stack>
+  );
+}
+const styles = StyleSheet.create({
+  headerImage: {
+    color: '#808080',
+    
+  },
+  logo:{
+    height: 60,
+    width: 60,
+    bottom: -10,
+    right: -60,
+    position: 'absolute',
+
+  },
+  titleContainer: {
+    flexDirection: 'row',
+   
+  },
+  headerText:{
+    color: 'white',
+    fontWeight: 'bold',
+    fontFamily: "Roboto",
+    paddingBottom: 10,
+  },
+});
+
