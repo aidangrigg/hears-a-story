@@ -1,9 +1,11 @@
 import { Link } from "expo-router";
 import { ActivityIndicator, Text, View, Image } from "react-native";
-// import { pipeline } from '@xenova/transformers';
+
+
 
 export default function Index() {
   return (
+    
     <View
       style={{
         flex: 1,
@@ -12,6 +14,7 @@ export default function Index() {
         backgroundColor: "#192637",
       }}
     >
+        
       <Text
         style={{
             fontSize: 40, 
