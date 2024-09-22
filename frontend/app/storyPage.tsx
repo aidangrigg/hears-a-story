@@ -3,6 +3,16 @@ import { StyleSheet, Image, Platform } from 'react-native';
 import NarratorTextbox from '@/components/NarratorTextbox';
 import UserTextbox from '@/components/UserTextbox';
 
+interface textBox{
+  id: number;
+  pov: boolean;
+  text: string;
+}
+
+let text1 = new textBox(id: 01, pov: false, text: "dwadawdawda");
+const textBoxes: textBox[] = []
+
+
 let text = "TextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextText";
 let storyName: string = "Story Name";
 export default function Index() {
