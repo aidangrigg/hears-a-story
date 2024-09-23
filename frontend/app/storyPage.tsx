@@ -1,34 +1,25 @@
-import { Text, View } from "react-native";
+import { Text, View, FlatList, ScrollView  } from "react-native";
 import { StyleSheet, Image, Platform } from 'react-native';
-import NarratorTextbox from '@/components/NarratorTextbox';
-import UserTextbox from '@/components/UserTextbox';
+import {NarratorTextbox, UserTextbox, Response, UserResponse, NarratorResponse} from '@/components/TextBoxes';
 import InputBox from "@/components/InputBox";
 import React from 'react';
 
-class textBox{
-  id: number;
-  pov: boolean;
-  text: string;
 
-  constructor(id: number,  pov: boolean, text: string) {
-    this.id = id;
-    this.pov = pov;
-    this.text = text;
-  }
-}
 
-let text1 = new textBox(1, false, "TextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextText");
-let text2 = new textBox(2, true, "TextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextText");
-let text3 = new textBox(3, true, "TextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextText");
-let text4 = new textBox(4, false, "TextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextText");
 
-const textBoxes: textBox[] = [text1, text2, text3, text4];
+let text1 = new NarratorResponse(1, "TextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextText");
+let text2 = new UserResponse(2, "TextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextText");
+let text3 = new NarratorResponse(3, "TextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextText");
+let text4 = new UserResponse(4, "TextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextText");
+let text5 = new NarratorResponse(5, "TextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextText");
 
-const settextBoxes = textBoxes.map(textBox => {
-  if(textBox.pov){
-    return <UserTextbox text = {textBox.text}/>;
+const Responses: Response[] = [text1, text2, text3, text4, text5];
+
+const settextBoxes = Responses.map(Response => {
+  if(Response.type == "U"){
+    return <UserTextbox {...Response}/>;
   };
-  return <NarratorTextbox text = {textBox.text}/>;
+  return <NarratorTextbox {...Response}/>;
     
 });
 
@@ -40,7 +31,11 @@ let storyName: string = "Story Name";
 export default function Index() {
   return (
     <View style={styles.pageStyle}>
+      <ScrollView style={styles.scrollStyle}>
       {settextBoxes}
+      <View style={styles.hidden}>
+        </View>
+      </ScrollView>
     <InputBox />
     
 
@@ -60,6 +55,11 @@ const styles = StyleSheet.create({
     borderStyle: "solid",
     borderTopWidth: 2,
   },
+  scrollStyle:{
+  },
+  hidden:{
+    height: 100,
+  }
   
 });
 
