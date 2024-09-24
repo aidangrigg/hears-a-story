@@ -1,25 +1,42 @@
-import { Text, View, FlatList, ScrollView  } from "react-native";
+import { Text, View, FlatList, ScrollView, Alert  } from "react-native";
 import { StyleSheet, Image, Platform } from 'react-native';
-import {NarratorTextbox, UserTextbox, Response, UserResponse, NarratorResponse} from '@/components/TextBoxes';
-import InputBox from "@/components/InputBox";
+import {NarratorTextbox, UserTextbox, Response, UserResponse, NarratorResponse} from '@/components/ResponseBoxes';
 import React from 'react';
 
+function backBtnEvent() {
+    Alert.alert('You tapped the button!');
+  }
+function playBtnEvent() {
+    Alert.alert('You tapped the button!');
+  }
 
+function submitResponseBtnEvent() {
+    Alert.alert('You tapped the button!');
+  }
 
 
 let text1 = new NarratorResponse(1, "TextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextText");
 let text2 = new UserResponse(2, "TextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextText");
 let text3 = new NarratorResponse(3, "TextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextText");
-let text4 = new UserResponse(4, "TextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextText");
-let text5 = new NarratorResponse(5, "TextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextText");
+let text4 = new UserResponse(4, "");
+text2.mostCurrent = false;
+const Responses: Response[] = [text1, text2, text3, text4];
 
-const Responses: Response[] = [text1, text2, text3, text4, text5];
 
 const settextBoxes = Responses.map(Response => {
+  
+  
   if(Response.type == "U"){
-    return <UserTextbox {...Response}/>;
+    return <UserTextbox 
+    response={Response}
+    submitResponseBtn={submitResponseBtnEvent}/>
+
   };
-  return <NarratorTextbox {...Response}/>;
+  return <NarratorTextbox 
+  response={Response} 
+  backBtn={backBtnEvent}
+  playBtn={playBtnEvent}
+  />;
     
 });
 
@@ -31,12 +48,12 @@ let storyName: string = "Story Name";
 export default function Index() {
   return (
     <View style={styles.pageStyle}>
-      <ScrollView style={styles.scrollStyle}>
+      <ScrollView style={styles.scrollStyle} >
       {settextBoxes}
       <View style={styles.hidden}>
         </View>
       </ScrollView>
-    <InputBox />
+
     
 
    
