@@ -12,6 +12,5 @@
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-, "app/STT_test/STT.js"  ]
+    "expo-env.d.ts"]
 }
