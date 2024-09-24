@@ -111,29 +111,29 @@
     }
 
 
-    //EXAMPLE USAGE WITH COMMAND LINE INPUT
-    const story = new PrototypeStoryGenerator("adventure");
+    // //EXAMPLE USAGE WITH COMMAND LINE INPUT
+    // const story = new PrototypeStoryGenerator("adventure");
 
-    const new_story = await story.generateNewStory();
+    // const new_story = await story.generateNewStory();
 
-    const rl = createInterface({ //for testing with user input
-        input: process.stdin,
-        output: process.stdout
-    });
+    // const rl = createInterface({ //for testing with user input
+    //     input: process.stdin,
+    //     output: process.stdout
+    // });
 
-    //first decision
-    rl.question('User Decision: ', async (user_decision) => {
-        await story.continueStory({
-            user_decision: user_decision, 
-            emotional_state: "hesitant"
-        });
+    // //first decision
+    // rl.question('User Decision: ', async (user_decision) => {
+    //     await story.continueStory({
+    //         user_decision: user_decision, 
+    //         emotional_state: "hesitant"
+    //     });
         
-        //second decision
-        rl.question('User Decision: ', async (user_decision) => {
-            await story.continueStory({
-                user_decision: user_decision, 
-                emotional_state: "excited"
-            });
-            rl.close();
-        });
-    });
+    //     //second decision
+    //     rl.question('User Decision: ', async (user_decision) => {
+    //         await story.continueStory({
+    //             user_decision: user_decision, 
+    //             emotional_state: "excited"
+    //         });
+    //         rl.close();
+    //     });
+    // });
