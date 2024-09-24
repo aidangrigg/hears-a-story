@@ -7,6 +7,7 @@ const Stack = createNativeStackNavigator();
 
 import Index from './index';
 import Loading from './loading';
+import CreateStory from './CreateStory';
 
 import Styles from './Styles';
 
@@ -18,6 +19,7 @@ export default function RootLayout() {
        {/* <Stack.Screen name="index" /> */}
       <Stack.Screen name="Library" component={Index} />
       <Stack.Screen name="Loading" component={Loading} />
+      <Stack.Screen name="Create Story" component={CreateStory} />
     {/* </Stack> */}
     </Stack.Navigator>
     </NavigationContainer>
