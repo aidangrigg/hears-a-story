@@ -15,7 +15,7 @@
     
     console.log("Running Prototype story manager... \n");
  
-    class PrototypeStoryGenerator{
+    export class PrototypeStoryGenerator{
         constructor(genre){
             this.genre = genre;
             this.context = ""; //all the story context
@@ -109,7 +109,6 @@
             return result;
         }
     }
-
 
     // //EXAMPLE USAGE WITH COMMAND LINE INPUT
     // const story = new PrototypeStoryGenerator("adventure");

@@ -3,16 +3,18 @@ import { Text, View } from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import React from 'react';
 
+type InputProps = {
+  onChangeText: (text: string) => void;
+  value: string
+};
 
-
-export default function InputBox(){
-    const [input, onInput] = React.useState('');
+export default function InputBox(props: InputProps){
     return (
 
              <TextInput
             style={styles.inputBoxStyle}
-            onChangeText={text => onInput(text)}
-            value={input}
+            onChangeText={props.onChangeText}
+            value={props.value}
             placeholder="Response..."
         />
        
