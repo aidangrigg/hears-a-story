@@ -3,62 +3,48 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-// import { pipeline } from '@xenova/transformers';
-import { useAudioStream } from 'react-audio-stream';
-import wavefile from 'wavefile';
+import {useState} from 'react';
+import {ExpoSpeechRecognitionModule, useSpeechRecognitionEvent,} from "expo-speech-recognition";
 
 export default function HomeScreen() {
-  const sendBlob = (data: Blob) => {
-    console.log(speechToText(data))
-  }
+  const [recognizing, setRecognizing] = useState(false);
+  const [transcript, setTranscript] = useState("");
 
-  async function speechToText(audio: Blob){
-    // const wavefile = require("wavefile");
-    // let {pipeline} = require("@xenova/transformers");
-    // Pipe for STT and Buffer for fetching audio
-    let pipe = await pipeline("automatic-speech-recognition", "Xenova/whisper-base")
-    // Once useAudioStream is in place use Buffer.from(await blob.arrayBuffer)
-    let buffer = Buffer.from(await audio.arrayBuffer())
-    // console.log(buffer)
-    let wav = new wavefile.WaveFile(buffer);
-    wav.toBitDepth('32f'); // Pipeline expects input as a Float32Array
-    wav.toSampleRate(16000); // Whisper expects audio with a sampling rate of 16000
-    let audioData = wav.getSamples();
-    if (Array.isArray(audioData)) {
-      if (audioData.length > 1) {
-        const SCALING_FACTOR = Math.sqrt(2);
-  
-        // Merge channels (into first channel to save memory)
-        for (let i = 0; i < audioData[0].length; ++i) {
-          audioData[0][i] = SCALING_FACTOR * (audioData[0][i] + audioData[1][i]) / 2;
-        }
-      }
-  
-      // Select first channel
-      audioData = audioData[0];
-      const output = await pipe(audioData)
-      console.log(output)
-      // return await pipe(audioData);
+  useSpeechRecognitionEvent("start", () => setRecognizing(true));
+  useSpeechRecognitionEvent("end", () => setRecognizing(false));
+  useSpeechRecognitionEvent("result", (event) => {
+    setTranscript(event.results[0]?.transcript);
+    console.log(transcript);
+  });
+  useSpeechRecognitionEvent("error", (event) => {
+    console.log("error code:", event.error, "error messsage:", event.message);
+  });
+
+  const handleStart = async () => {
+    const result = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
+    if (!result.granted) {
+      console.warn("Permissions not granted", result);
+      return;
     }
-  }
-
-  const { startStream, stopStream } = useAudioStream(sendBlob)
+    // Start speech recognition
+    ExpoSpeechRecognitionModule.start({
+      lang: "en-US",
+      interimResults: true,
+      maxAlternatives: 1,
+      continuous: false,
+      requiresOnDeviceRecognition: false,
+      addsPunctuation: false,
+      contextualStrings: ["Carlsen", "Nepomniachtchi", "Praggnanandhaa"],
+    });
+  };
   return (
     <div>
-      <button
-        onClick={() => {
-          startStream()
-        }}
-      >
-        start stream
-      </button>
-      <button
-        onClick={() => {
-          stopStream()
-        }}
-      >
-        stop stream
-      </button>
+      {!recognizing ? (
+        <button title="Start" onClick={handleStart}>Start Recording</button>
+      ) : (
+        <button title="Stop" onClick={ExpoSpeechRecognitionModule.stop}>Stop Recording</button>
+      )}
+      <p>{transcript}</p>
     </div>
   );
 }
