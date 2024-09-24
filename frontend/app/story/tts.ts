@@ -13,7 +13,7 @@ interface TTSProvider {
 }
 
 class ServerTTS implements TTSProvider {
-  private readonly maxTokenLength = 100; // TODO: actually check how long the max token length is
+  private readonly maxTokenLength = 500; // TODO: actually check how long the max token length is
   private isPlaying = false;
 
   private static async fetchAudio(text: string) {

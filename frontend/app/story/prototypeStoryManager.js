@@ -11,8 +11,8 @@
     import { HfInference } from "@huggingface/inference";
     import { HF_ACCESS_TOKEN } from './codes.js'; //*add a codes.js file in the same directory with the access token*
 
-    import { createInterface } from 'readline'; //for testing with user input
-    
+    // import { createInterface } from 'readline'; //for testing with user input
+ 
     console.log("Running Prototype story manager... \n");
  
     export class PrototypeStoryGenerator{
@@ -22,8 +22,9 @@
             this.inference = new HfInference(HF_ACCESS_TOKEN);
         }
 
-        async generateText(prompt){
-            try{
+      async generateText(prompt){
+        try{
+
                 let result = "";
                 //Use the model
                 for await (const chunk of this.inference.chatCompletionStream({
@@ -34,10 +35,10 @@
                     temperature: 0.5 //for randomness and creativity, higher values are more random
                 })) {
                     // Append each chunk's content to the result
-                    result += chunk.choices[0]?.delta?.content || "";
+                  result += chunk.choices[0]?.delta?.content || "";
                 }
+
                 // Log the full result after all chunks are processed
-                console.log("", result);
                 return result;
             } catch (error) {
                 console.error('Error generating text:', error);

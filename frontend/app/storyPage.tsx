@@ -5,6 +5,7 @@ import { NarratorTextbox, UserTextbox, Response, UserResponse, NarratorResponse 
 import { PrototypeStoryGenerator } from "./story/prototypeStoryManager"
 import InputBox from "@/components/InputBox";
 import React, { useEffect, useState } from 'react';
+import { TTS } from "./story/tts";
 
 enum ResponseKind {
     NARRATOR,
@@ -17,20 +18,20 @@ let storyName: string = "Story Name";
 
 export default function Index() {
     const story = new PrototypeStoryGenerator("adventure");
+    const tts = new TTS();
 
     const [responses, setResponses] = useState<Response[]>([]);
     const [inputText, setInputText] = useState("");
 
     useEffect(() => {
-        story.generateNewStory().then((text) => {
-
+      story.generateNewStory().then((text) => {
             if (!text) {
                 console.error("Error generating new story");
                 return;
             }
 
             setResponses([...responses, createResponse(text, ResponseKind.NARRATOR)]);
-       });
+        });
     }, [])
 
     const createResponse = (text: string, kind: ResponseKind) => {
@@ -39,6 +40,7 @@ export default function Index() {
         switch (kind) {
             case ResponseKind.NARRATOR:
                 response = new NarratorResponse(textNum++, text);
+                tts.speak(text, {});
                 break;
             case ResponseKind.USER:
                 response = new UserResponse(textNum++, text);
