@@ -1,4 +1,4 @@
-//NOTE: NEEDS ACCESS TOKEN TO RUN - HF_ACCESS_TOKEN - Create a codes.js file in the same directory with the access token
+//NOTE: NEEDS ACCESS TOKEN TO RUN - HF_ACCESS_TOKEN - Create a codes.js file in the same directory with the hugging face access token (HF_ACCESS_TOKEN)
 
 // Description: This file contains the logic for story generation.
     //function to generate the story given a prompt
@@ -8,6 +8,7 @@ import { HfInference } from "@huggingface/inference";
 import { HF_ACCESS_TOKEN } from './codes.js'; //add a codes.js file in the same directory with the access token
 
 console.log('ACCESS TOKEN:', HF_ACCESS_TOKEN);
+//console.log("EXPO_PUBLIC ACCESS TOKEN - ", process.env.EXPO_PUBLIC_HF_ACCESS_TOKEN);
 
 //Initialise the Hugging Face Interface Class
 const inference = new HfInference(HF_ACCESS_TOKEN);
@@ -47,7 +48,7 @@ async function generateNewStory(genre){
 
     `;
 
-    return generateStory(intial_prompt);
+    return await generateStory(intial_prompt);
 }
 
 async function continueStory({context, previous_response, new_decision, emotional_state}){
@@ -70,7 +71,7 @@ async function continueStory({context, previous_response, new_decision, emotiona
     //**Previous Response**: [Detail the outcome of the user's last decision]. - be sure to add this back in later
     //**New Decision**: [The user's decision that will lead to a new scenario and their emotional state (with sentiment analysis)].
 
-    return generateStory(continue_prompt);
+    return await generateStory(continue_prompt);
 }
 
 const new_story = await generateNewStory("dark fantasy");
