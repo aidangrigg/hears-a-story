@@ -66,22 +66,44 @@
             console.log("Context: ", this.context);
             console.log("Continuing the story...");
 
-            const continue_prompt = `You are generating an interactive "choose your own adventure" story. Each prompt should include the current state of the story and present a new decision point based on the previous choice. 
-            The story should be based on the following:
+            // const continue_prompt = `You are generating an interactive "choose your own adventure" story. Each prompt should include the current state of the story and present a new decision point based on the previous choice. 
+            // The story should be based on the following:
         
-            **Context**: ${this.context} 
+            // **Context**: ${this.context} 
             
-            **New Decision**: The user's decision is to ${user_decision} and their emotional state is ${emotional_state}.
+            // **New Decision**: The user's decision is to ${user_decision} and their emotional state is ${emotional_state}.
             
-            **Example Output:**
+            // **Example Output:**
             
+            // "You enthusiastically decided to enter the glowing portal. Stepping through, you find yourself in a shimmering, otherworldly landscape. 
+            // The sky is a swirl of colors, and strange, floating islands drift by. You notice two paths: one leads to a crystal-clear lake 
+            // with a mysterious island in the center, and the other to a towering, ancient tree with a ladder leading up to its branches."
+            // "Now, you must choose which path to explore: the lake with the island or the ancient tree with the ladder. 
+            // What do you choose to do next?"
+            // `;
+
+            const continue_prompt = `
+            You are generating an interactive "choose your own adventure" story. Each response should continue the narrative based on the previous choice while incorporating the current state of the story. 
+
+            Use the following details:
+
+            - **Context**: ${this.context}
+            - The user's decision is to ${user_decision}, and their emotional state is ${emotional_state}.
+
+            Generate a narrative that:
+            1. Begins with the consequences of the user's decision, seamlessly transitioning from the last part of the story.
+            2. Describes the environment and any relevant characters reacting to the decision.
+            3. Presents a new decision point for the user without explicitly labeling it.
+            4. Ends with an open-ended question that prompts the user for their next action.
+
+            For example, the output could be structured like this:
+
             "You enthusiastically decided to enter the glowing portal. Stepping through, you find yourself in a shimmering, otherworldly landscape. 
             The sky is a swirl of colors, and strange, floating islands drift by. You notice two paths: one leads to a crystal-clear lake 
-            with a mysterious island in the center, and the other to a towering, ancient tree with a ladder leading up to its branches."
-            "Now, you must choose which path to explore: the lake with the island or the ancient tree with the ladder. 
+            with a mysterious island in the center, and the other to a towering, ancient tree with a ladder leading up to its branches. 
             What do you choose to do next?"
             `;
-
+            
             const result = await this.generateText(continue_prompt);
             this.context += `Narration: ${result} \n`;
             return result;
