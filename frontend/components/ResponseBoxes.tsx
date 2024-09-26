@@ -10,13 +10,13 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 
 
 export class Response{
-    id: number;
+    id: string;
     text: string;
     type: string;
     mostCurrent: boolean;
     editing: boolean;
    
-     constructor( id: number){
+     constructor( id: string){
         this.id = id;
         this.text = "NULL";
         this.type = "NULL";
@@ -27,7 +27,7 @@ export class Response{
 };
 
 export class NarratorResponse extends Response{
-    constructor(id: number, text: string){
+    constructor(id: string, text: string){
         super(id);
         this.text = text;
         this.type = 'N';
@@ -38,7 +38,7 @@ export class NarratorResponse extends Response{
 }
 
 export class UserResponse extends Response{
-    constructor(id: number, text: string){
+    constructor(id: string, text: string){
         super(id);
         this.text = text;
         this.type = 'U';

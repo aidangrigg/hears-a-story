@@ -1,7 +1,7 @@
 import { Text, View, FlatList, ScrollView, Alert  } from "react-native";
 import { StyleSheet, Image, Platform } from 'react-native';
 import {NarratorTextbox, UserTextbox, Response, UserResponse, NarratorResponse} from '@/components/ResponseBoxes';
-import React from 'react';
+import React, { useId } from 'react';
 
 function backBtnEvent() {
     Alert.alert('You tapped the button!');
@@ -15,12 +15,13 @@ function submitResponseBtnEvent() {
   }
 
 
-let text1 = new NarratorResponse(1, "TextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextText");
-let text2 = new UserResponse(2, "TextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextText");
-let text3 = new NarratorResponse(3, "TextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextText");
-let text4 = new UserResponse(4, "");
+let text1 = new NarratorResponse(useId(), "TextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextText");
+let text2 = new UserResponse(useId(), "TextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextText");
+let text3 = new NarratorResponse(useId(), "TextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextText");
+let text4 = new UserResponse(useId(), useId());
 text2.mostCurrent = false;
 const Responses: Response[] = [text1, text2, text3, text4];
+text4.editing = false;
 
 
 const settextBoxes = Responses.map(Response => {

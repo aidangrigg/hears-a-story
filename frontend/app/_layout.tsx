@@ -1,13 +1,15 @@
 import { Stack } from "expo-router";
 import { Image, Text, View, StyleSheet } from 'react-native';
 
-
-function LogoTitle(props) {
+interface headerProps{
+  pageName: String;
+}
+function LogoTitle({pageName}:headerProps) {
   return (
     <View style={styles.titleContainer}>
       <Text style={styles.logoText}>HEARS A STORY </Text>
       <Image style={styles.logoImage} source={require('@/assets/images/hears-a-story-logo.png')}/>
-      <Text style={styles.pageTitle}>{props.pageName}</Text>
+      <Text style={styles.pageTitle}>{pageName}</Text>
       
       
     </View>
