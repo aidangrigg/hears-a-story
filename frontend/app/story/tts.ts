@@ -79,7 +79,7 @@ class ServerTTS implements TTSProvider {
       try {
         await this.sound?.stopAsync()
         await this.unload();
-      } catch (e){
+      } catch (e) {
         reject();
       }
       resolve()
@@ -262,7 +262,41 @@ function processTTSText(text: string, maxLength: number): string[] {
     return processedText;
   }
 
-  // TODO: implement splitting by 1 space in the middle of the sentence
-  console.assert(false, "Not implemented");
-  return [];
+  // try splitting by the middle psace in the sentence
+  let spaceSeperatedText = processedText.flatMap((chunk) => {
+    // if the chunk is already within the size limit,
+    // no more processing needs to be done
+    if (chunk.length <= maxLength) {
+      return chunk;
+    }
+
+    // continue splitting the sentence by the middle space until it is the
+    // minimum length
+    let processedChunk = [chunk];
+    while (processedChunk.some((val) => val.length >= maxLength)) {
+      processedChunk = processedChunk.flatMap((chunk) => {
+        if (chunk.length <= maxLength) {
+          return chunk;
+        }
+
+        return splitSentenceByMiddleSpace(chunk);
+      })
+    }
+    return processedChunk;
+  });
+
+  return spaceSeperatedText;
 }
+
+function splitSentenceByMiddleSpace(sentence: string): string[] {
+  let words = sentence.split(" ");
+  let midpoint = Math.floor(words.length / 2);
+
+  return [words.slice(0, midpoint).join(" "), words.slice(midpoint, words.length).join(" ")];
+}
+
+
+// for testing
+export const _private = {
+  processTTSText
+};
