@@ -3,18 +3,35 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import {ExpoSpeechRecognitionModule, useSpeechRecognitionEvent,} from "expo-speech-recognition";
 
 export default function HomeScreen() {
   const [recognizing, setRecognizing] = useState(false);
   const [transcript, setTranscript] = useState("");
+  let [timeoutID] = useState(Number)
 
-  useSpeechRecognitionEvent("start", () => setRecognizing(true));
-  useSpeechRecognitionEvent("end", () => setRecognizing(false));
+  function transcriptCheck(){
+    ExpoSpeechRecognitionModule.stop();
+  }
+
+  useSpeechRecognitionEvent("start", () => {
+    setRecognizing(true);
+  })
+  useSpeechRecognitionEvent("end", () => {
+    setRecognizing(false);
+    setTimeout(handleStart, 2000)
+  })
   useSpeechRecognitionEvent("result", (event) => {
-    setTranscript(event.results[0]?.transcript);
-    console.log(transcript);
+    window.clearTimeout(timeoutID)
+    if (event.isFinal){
+      setTranscript(transcript => {
+        console.log(transcript + `\n` + event.results[0]?.transcript)
+        return transcript + `\n` + event.results[0]?.transcript;
+      });
+      timeoutID = (window.setTimeout(transcriptCheck, 4000))
+    }
+    // console.log(event);
   });
   useSpeechRecognitionEvent("error", (event) => {
     console.log("error code:", event.error, "error messsage:", event.message);
@@ -31,20 +48,21 @@ export default function HomeScreen() {
       lang: "en-US",
       interimResults: true,
       maxAlternatives: 1,
-      continuous: false,
+      continuous: true,
       requiresOnDeviceRecognition: false,
-      addsPunctuation: false,
+      addsPunctuation: true,
       contextualStrings: ["Carlsen", "Nepomniachtchi", "Praggnanandhaa"],
     });
   };
+  
   return (
     <div>
       {!recognizing ? (
         <button title="Start" onClick={handleStart}>Start Recording</button>
       ) : (
-        <button title="Stop" onClick={ExpoSpeechRecognitionModule.stop}>Stop Recording</button>
+        <button title="Stop" onClick={ExpoSpeechRecognitionModule.abort}>Stop Recording</button>
       )}
-      <p>{transcript}</p>
+      <p style={{whiteSpace: "pre"}}>{transcript}</p>
     </div>
   );
 }
