@@ -1,86 +1,180 @@
 //NOTE: NEEDS ACCESS TOKEN TO RUN - HF_ACCESS_TOKEN - Create a codes.js file in the same directory with the hugging face access token (HF_ACCESS_TOKEN)
 
 // Description: This file contains the logic for story generation.
-    //function to generate the story given a prompt
-    //for later - "long term memory" management
+
+import endingsData from './endings.json';
+import milestonesData from './milestones.json';
+import introductionData from './introduction.json';
 
 import { HfInference } from "@huggingface/inference";
 import { HF_ACCESS_TOKEN } from './codes.js'; //add a codes.js file in the same directory with the access token
 
-console.log('ACCESS TOKEN:', HF_ACCESS_TOKEN);
-//console.log("EXPO_PUBLIC ACCESS TOKEN - ", process.env.EXPO_PUBLIC_HF_ACCESS_TOKEN);
+class StoryGenerator {
+    constructor(genre, length) {
+      this.memoryStream = [];
+      this.promptCount = 1;
+      this.milestones = milestonesData[genre][length]; // Set milestones based on genre and length
+      this.endings = endingsData[genre]; // Set possible endings based on genre
+      this.introduction = introductionData[genre]; // Set introduction based on genre
+      this.currentMilestone = this.milestones[0];
 
-//Initialise the Hugging Face Interface Class
-const inference = new HfInference(HF_ACCESS_TOKEN);
-
-
-async function generateStory(prompt){
-    try{
-        let result = "";
-        //Use the model
-        for await (const chunk of inference.chatCompletionStream({
-            model: "microsoft/Phi-3-mini-4k-instruct",
-            messages: [{ role: "user", content: prompt }],
-            max_tokens: 500,
-            bad_words_ids: [[50256]]  //Prevents the end-of-text token from cutting it off
-        })) {
-            // Append each chunk's content to the result
-            result += chunk.choices[0]?.delta?.content || "";
-        }
-        // Log the full result after all chunks are processed
-        console.log("Final result:", result);
-        return result;
-    } catch (error) {
-        console.error('Error generating text:', error);
+      this.HF_ACCESS_TOKEN = process.env.HF_ACCESS_TOKEN;
+      this.inference = new HfInference(HF_ACCESS_TOKEN);
     }
-}
 
-async function generateNewStory(genre){
-    const intial_prompt = `Generate an interactive "choose your own adventure" story in the ${genre} genre. Start with an engaging introduction that sets the scene and ends with an open-ended question for the user to choose their next action.
+    getIntroduction() {
+        return this.introduction;
+    }  
 
-    Here's how it should start:
+    async generateText(prompt){
+        try{
+            let result = "";
+            //Use the model
+            for await (const chunk of this.inference.chatCompletionStream({
+                model: "microsoft/Phi-3-mini-4k-instruct",
+                messages: [{ role: "user", content: prompt }],
+                max_tokens: 500,
+                bad_words_ids: [[50256]]  //Prevents the end-of-text token from cutting it off
+            })) {
+                // Append each chunk's content to the result
+                result += chunk.choices[0]?.delta?.content || "";
+            }
+            // Log the full result after all chunks are processed
+            console.log("Generated story part:", result);
+            return result;
+        } catch (error) {
+            console.error('Error generating text:', error);
+        }
+    }
 
-    "In a world of ${genre}, you find yourself in [describe the setting briefly]. As you explore, you encounter [describe an interesting scenario or conflict]. The story unfolds as follows:
-    [Generate a short, engaging narrative that includes the initial scenario and sets up a decision point.]
-    You are faced with a critical choice: [insert open-ended question related to the scenario].
-
-    What do you do next?"
-
-    `;
-
-    return await generateStory(intial_prompt);
-}
-
-async function continueStory({context, previous_response, new_decision, emotional_state}){
-    const continue_prompt = `You are generating an interactive "choose your own adventure" story. Each prompt should include the current state of the story and present a new decision point based on the previous choice. 
-
-    **Context**: ${context} 
+    async memoryRetrieval({userResponse, sentiment}){ //retrieves relevant parts of the memory stream
+        console.log('Retrieving relevant parts of the memory stream...');
+        const prompt = `
+        Here's a detailed AI prompt to help the AI agent determine which observations from the memory stream will be affected by the user's response and feelings, and how:
+        
+        Prompt for AI Agent:
+        
+        "You are tasked with evaluating the memory stream from the protagonist's journey. Review the user's latest response to the story and their emotional sentiment (e.g., excited, fearful, curious). 
+        Based on their response and emotions, select which past observations or actions from the memory stream are most likely to be affected or revisited. 
+        Then, explain how these observations should evolve or change in light of the user's response.
+        
+        **Memory Stream**: ${this.memoryStream}
+        
+        **User's Response**: ${userResponse}
+        
+        **User's Emotional Sentiment**: ${sentiment}
+        
+        **Based on the above, do the following**:
+        
+        Based on the user's response and emotional state, identify key observations from the memory stream that are most affected. 
+        Update these observations to reflect the impact of the user's actions and emotions. 
+        Then, briefly explain how these changes influence the next part of the story.`;
     
-    **New Decision**: The user's decision is to ${new_decision} and their emotional state is ${emotional_state}.
+        return await generateText(prompt);
+    }
+
+    async continueStory({context, userResponse, sentiment}){ //Generate next part of the story
+        console.log('Continuing the story...');
+        const continue_prompt = `You are continuing a interactive "choose your own adventure" story and are to continue the story in one paragraph in response to the user's recent decision.
+        Given the data below, in the response you must:
+        - Consider the Context of the story
+        - React to the user's emotional state.
+        - Include the current state of the story based on the User decision.
+        - End in an open-ended question for the user to choose their next action.
+        - Follow a similar structure to the Example Output below.
+        
     
-    **Example Output:**
+        **Context**: ${context} 
+        
+        **User decision**: ${userResponse}
     
-    "You enthusiastically decided to enter the glowing portal. Stepping through, you find yourself in a shimmering, otherworldly landscape. 
-    The sky is a swirl of colors, and strange, floating islands drift by. You notice two paths: one leads to a crystal-clear lake 
-    with a mysterious island in the center, and the other to a towering, ancient tree with a ladder leading up to its branches."
-    "Now, you must choose which path to explore: the lake with the island or the ancient tree with the ladder. 
-    What do you choose to do next?"
-    `;
+        **Emotional State**: ${sentiment}
+    
+        **Current Milestone**: ${this.currentMilestone}
+        
+        **Example Output:**
+        
+        "You enthusiastically decided to enter the glowing portal. Stepping through, you find yourself in a shimmering, otherworldly landscape. 
+        The sky is a swirl of colors, and strange, floating islands drift by. You notice two paths: one leads to a crystal-clear lake 
+        with a mysterious island in the center, and the other to a towering, ancient tree with a ladder leading up to its branches."
+        "Now, you must choose which path to explore: the lake with the island or the ancient tree with the ladder. 
+        What do you choose to do next?"
+        `;
+        
+        this.promptCount++;
 
-    //**Context**: [Include a brief recap of the user's last choice and the resulting scenario]
-    //**Previous Response**: [Detail the outcome of the user's last decision]. - be sure to add this back in later
-    //**New Decision**: [The user's decision that will lead to a new scenario and their emotional state (with sentiment analysis)].
+        return await generateText(continue_prompt);
+    
+    }
 
-    return await generateStory(continue_prompt);
-}
+    async updateNextMilestone(context){
+        // Update the next milestone based on the recent AI output
+        console.log("Updating the next milestone based on the recent AI output...");
 
-const new_story = await generateNewStory("dark fantasy");
+        prompt = `**Context**: ${context}
 
-console.log("\n next part \n");
+        **Previous Milestone**: ${this.currentMilestone}
 
-let continued_story = await continueStory({
-    context: new_story, 
-    previous_response: new_story, 
-    new_decision: "I guess I'll explore the dark portal", 
-    emotional_state: "hesitant"
-});
+        **Milestones**: ${this.milestones}
+
+        Given the context and previous milestone, output the index for the milestone that best matches the current story progress.
+        `
+        try{
+            let result = "";
+            //Use the model
+            for await (const chunk of this.inference.chatCompletionStream({
+                model: "microsoft/Phi-3-mini-4k-instruct",
+                messages: [{ role: "user", content: context }],
+                max_tokens: 500,
+                bad_words_ids: [[50256]]  //Prevents the end-of-text token from cutting it off
+            })) {
+                // Append each chunk's content to the result
+                result += chunk.choices[0]?.delta?.content || "";
+            }
+            // Log the full result after all chunks are processed
+            console.log("Current Milestone:", result);
+
+            // If the result is a valid and different milestone, update the current milestone
+            if (this.milestones.includes(result) && result != this.currentMilestone) { //*Check whether I'm referring to the index or value here
+                this.currentMilestone = result;
+            }
+
+            return result;
+
+        } catch (error) {
+            console.error('Error generating text:', error);
+        }
+    }
+
+    async populateMemoryStream(storyExerpt){ //creates observations based on the most recent part of the story (NOTE - there still needs to be a way to add these to the memory stream)
+        console.log('Populating memory stream with observations based on the story excerpt');
+
+        const prompt = `You are an assistant tasked with creating a memory stream based on a given part of a story. The memory stream should contain key observations about the user's current situation, decisions, and environment.
+
+        For each part of the story provided, return a list of observations formatted as follows:
+        - Each observation should include the "prompt_no", which corresponds to the story prompt number.
+        - Each observation should be direct and capture key details such as actions, decisions, and environment.
+        - The "location" field should describe where the user is at that moment.
+        
+        Here's the format to follow:
+        [
+          {
+            "prompt_no": X,
+            "observation": "<What the user observes or does in this part of the story>",
+            "location": "<Location in the story>"
+          },
+          ...
+        ]
+        
+        Based on the following story excerpt, generate the memory stream:
+        "${storyExerpt}"
+        `;
+        return await generateText(prompt);
+    }
+}  
+
+
+//EXAMPLE
+// const shortCrimeStory = new StoryGenerator('crime', 'short');
+// let intro = shortCrimeStory.generateText(shortCrimeStory.getIntroduction());
+// shortCrimeStory.continueStory({context: intro, userResponse: 'create a distraction', sentiment: 'determined'});
