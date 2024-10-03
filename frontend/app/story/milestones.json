@@ -1,0 +1,100 @@
+{
+    "crime": {
+      "short": [
+        "The crew gathers to discuss the heist plan.",
+        "The Planner chooses between distraction or stealth.",
+        "The crew faces a critical obstacle during the heist.",
+        "The heist's outcome is revealed: success, failure, or betrayal."
+      ],
+      "medium": [
+        "The crew gathers at the diner to finalize the plan for the heist.",
+        "The Planner makes the first key decision: distraction or stealth.",
+        "Arriving at the mansion and initiating the chosen plan.",
+        "Encountering an unexpected obstacle during the heist.",
+        "Reaching the vault and facing the final security challenge.",
+        "The outcome of the heist: success, failure, or betrayal, based on decisions."
+      ],
+      "long": [
+        "The crew is gathered and the Planner is introduced. A rift within the crew is revealed.",
+        "The Planner discusses key tactics with the team: distraction, stealth, or hacking.",
+        "Recon missions begin: the team splits up to gather intel on the target location.",
+        "The crew discovers new information that challenges the original plan.",
+        "An unexpected betrayal occurs, forcing the team to adapt the heist plan.",
+        "The team infiltrates the mansion, splitting up to execute their roles.",
+        "A crucial decision in the vault room: disable the final security or risk tripping an alarm.",
+        "The heist's outcome: betrayal, success, or a narrow escape, depending on earlier choices."
+      ]
+    },
+    "sci-fi": {
+      "short": [
+        "The crew plans a risky space heist.",
+        "The team chooses between sabotage or hacking.",
+        "The mission faces a critical system failure.",
+        "The final decision determines success or failure."
+      ],
+      "medium": [
+        "The crew plans a dangerous heist on a space station.",
+        "The Planner makes a key decision between sabotage or hacking.",
+        "The team boards the space station and initiates the mission.",
+        "They face a critical system failure, endangering the mission.",
+        "Final decisions are made under pressure, determining the outcome."
+      ],
+      "long": [
+        "The crew is assembled: the Pilot, Engineer, and Planner. Tensions rise among them.",
+        "The team must decide between sabotage or hacking to disable the station's security.",
+        "Before boarding, the crew receives unexpected intel about a mole within their ranks.",
+        "Infiltrating the space station, each member splits off to perform their role.",
+        "A sudden system failure endangers the entire mission and puts lives at risk.",
+        "A mole is revealed, leading to a tense standoff between crew members.",
+        "Final decisions in the vault determine the fate of the heist: escape, betrayal, or success."
+      ]
+    },
+    "fantasy": {
+      "short": [
+        "The hero embarks on a quest to retrieve a magical artifact.",
+        "They must choose between two paths: forest or mountains.",
+        "They encounter a mystical guardian who challenges them.",
+        "The final challenge reveals whether they succeed or fail."
+      ],
+      "medium": [
+        "The hero is tasked with retrieving a magical artifact to save their kingdom.",
+        "They meet allies who present choices between different paths (forest, mountains).",
+        "The hero faces trials in their chosen path: magical traps, dangerous beasts.",
+        "They face a mystical guardian, who presents a final test of strength or wisdom.",
+        "Their success or failure impacts the future of the kingdom."
+      ],
+      "long": [
+        "The hero is chosen by fate to embark on a perilous quest for a magical artifact.",
+        "They must gather companions: a mage, a warrior, and a rogue, each with their own motives.",
+        "Along the way, the hero faces decisions about their allies and paths to take.",
+        "Magical traps and dangerous beasts await on each path, testing their abilities.",
+        "The hero's greatest trial is a mystical guardian who presents a complex riddle or duel.",
+        "Their success or failure not only affects their kingdom, but the balance of magic in the world."
+      ]
+    },
+    "mystery": {
+      "short": [
+        "A detective investigates a mysterious disappearance in a small town.",
+        "They must choose between following two leads.",
+        "One lead turns out to be a dead end, forcing a new decision.",
+        "The case is solved or left open-ended based on choices."
+      ],
+      "medium": [
+        "A detective is called to investigate a disappearance in a quiet, eerie town.",
+        "The detective meets key witnesses and must choose which lead to follow first.",
+        "They uncover a web of lies and conflicting witness testimonies.",
+        "An unexpected clue surfaces, changing the direction of the investigation.",
+        "The case is solved, but the outcome depends on the choices made along the way."
+      ],
+      "long": [
+        "The detective is hired to solve a high-profile disappearance in a secretive town.",
+        "Meeting with witnesses, the detective uncovers personal motives and lies.",
+        "Following conflicting leads, the detective must choose whom to trust.",
+        "A strange new clue is discovered, linking the disappearance to a series of past crimes.",
+        "The detective is betrayed by an ally, complicating the investigation further.",
+        "The case leads to a dramatic confrontation with the true culprit.",
+        "The ending reveals a hidden conspiracy, depending on how well the detective navigated the clues."
+      ]
+    }
+  }
+  
