@@ -1,14 +1,7 @@
 import { View, Image, Text, Pressable, Alert } from "react-native";
 import { StyleSheet } from 'react-native';
 
-
-type storyProps = {
-    title: string;
-    status: string;
-    duration: string;
-  };
-
-export default function Story(props: storyProps) {
+export default function Story({storyProps} : {storyProps: any}) {
     return (
         <View 
             style={styles.content}>
@@ -18,15 +11,15 @@ export default function Story(props: storyProps) {
         <View
           style={styles.container}>
           <Text
-            style={styles.title}>{props.title}</Text>
+            style={styles.title}>{storyProps?.title}</Text>
           <Text
-            style={styles.status}>Status: {props.status}</Text>
+            style={styles.status}>Status: {storyProps?.status}</Text>
           <Text
-            style={styles.duration}>Duration: {props.duration}</Text>
+            style={styles.duration}>Duration: {storyProps?.duration}</Text>
         </View>
         
         <Pressable
-          onPress={() => Alert.alert(`Opening ${props.title}`)} >
+          onPress={() => Alert.alert(`Opening ${storyProps?.title}`)} >
           <Image 
             style={{height:48, width: 48, margin: "auto"}}
             source={require("@/assets/images/playButton.png")}/>

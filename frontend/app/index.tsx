@@ -9,8 +9,20 @@ import Story from "@/components/storyBrief";
 
 // import Styles from "./Styles";
 
+type story = {
+  title: string;
+  status: string;
+  duration: string;
+};
+
 export default function Index() {
   const navigation: any = useNavigation();
+  // const [storyList, onChangeName] = React.useState('');
+  let storyList: story[] = [
+    { title: "Story 1", status: "Ongoing", duration: "2h 3m"},
+    { title: "Story 2", status: "Ongoing", duration: "2h 3m"},
+    { title: "Story 3", status: "Ongoing", duration: "2h 3m"}
+  ];
 
   return (
      <View
@@ -25,16 +37,17 @@ export default function Index() {
       {/* <StatusBar barStyle="light-content" backgroundColor="#6a51ae" /> */}
       <Header title="Library"></Header>
       <ScrollView style={{ width: "100%"}}>
-        <Story title="Story 1" status="Ongoing" duration="2h 3m"/>
-        <Story title="Story 2" status="Ongoing" duration="2h 3m"/>
-        <Story title="Story 3" status="Ongoing" duration="2h 3m"/>
-        <Story title="Story 1" status="Ongoing" duration="2h 3m"/>
-        <Story title="Story 2" status="Ongoing" duration="2h 3m"/>
-        <Story title="Story 3" status="Ongoing" duration="2h 3m"/>
-        <Story title="Story 1" status="Ongoing" duration="2h 3m"/>
-        <Story title="Story 2" status="Ongoing" duration="2h 3m"/>
-        <Story title="Story 3" status="Ongoing" duration="2h 3m"/>
+        {/* <View> */}
+        {storyList.map((story) => {
+          return (
+            // <View>
+              <Story storyProps={story}></Story>
+            // </View>
+          )
+        })}
+        {/* </View> */}
       </ScrollView>
+      
       <View>
         <Feather.Button
           style={{margin: 30, borderColor: "white", borderWidth: 5, borderRadius: 50, width: "80%", fontFamily: "Roboto"}}

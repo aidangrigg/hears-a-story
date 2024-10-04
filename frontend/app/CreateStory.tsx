@@ -6,7 +6,8 @@ import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 import { Header } from "@/components/header";
 
 export default function CreateStory() {
-    const [name, onChangeName] = React.useState('');
+    const [title, onChangeName] = React.useState('');
+
     return (
         <View
             style={styles.container}>
@@ -23,9 +24,10 @@ export default function CreateStory() {
                     <Text
                         style={styles.detail}>Enter a name for your new story</Text>
                     <TextInput
+                        // placeholder="Enter a title"
                         style={styles.nameInput}
                         onChangeText={onChangeName}
-                        value={name}
+                        value={title}
                         />
                 </View>
                 <View>
@@ -48,7 +50,7 @@ export default function CreateStory() {
                     iconStyle={{marginLeft: 10}}
                     backgroundColor={"#192637"}
                     borderRadius={100}
-                    onPress={() => Alert.alert(`Created ${name}`)}></SimpleLineIcons.Button>
+                    onPress={() => Alert.alert(`Created ${title}`)}></SimpleLineIcons.Button>
             </View>
         </View>
     )
