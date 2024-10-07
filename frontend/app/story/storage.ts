@@ -96,7 +96,7 @@ export async function createStory(genre: StoryGenre, length: StoryLength, isCurr
   await AsyncStorage.setItem(storyKey(story.id), JSON.stringify(story));
 
   if (isCurrent) {
-    await setCurrentStoryId(story.id);
+    await setCurrentStory(story.id);
   }
 
   return story.id;
@@ -157,6 +157,6 @@ export async function getCurrentStory(): Promise<Story | null> {
   return maybeStory;
 }
 
-export async function setCurrentStoryId(id: string) {
+export async function setCurrentStory(id: string) {
   await AsyncStorage.setItem(CURRENT_STORY_KEY, id);
 }

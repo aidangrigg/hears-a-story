@@ -76,7 +76,7 @@ describe("Storage tests", () => {
 
     expect(currentStory).toEqual(story2);
     
-    await Storage.setCurrentStoryId(id1);
+    await Storage.setCurrentStory(id1);
     currentStory = await Storage.getCurrentStory();
 
     expect(currentStory).toEqual(story1);
