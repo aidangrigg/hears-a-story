@@ -106,6 +106,11 @@ async function setStory(id: string, story: Story) {
   await AsyncStorage.setItem(storyKey(id), JSON.stringify(story));
 }
 
+/**
+ * Adds a memory stream fragment to the current story.
+ * Current story can be set by either creating a new story with isCurrent = true,
+ * or using the function setCurrentStory.
+ */
 export async function addMemoryStreamFragment(response_id: string, observation: string, location: string) {
   let maybeCurrentStory = await getCurrentStory();
 
@@ -120,6 +125,11 @@ export async function addMemoryStreamFragment(response_id: string, observation: 
   setStory(story.id, story);
 }
 
+/**
+ * Adds a response to the current story.
+ * Current story can be set by either creating a new story with isCurrent = true,
+ * or using the function setCurrentStory.
+ */
 export async function addStoryResponse(type: StoryResponseType, text: string) {
   let maybeCurrentStory = await getCurrentStory();
 
@@ -141,6 +151,11 @@ async function getCurrentStoryId(): Promise<string | null> {
   return await AsyncStorage.getItem(CURRENT_STORY_KEY);
 }
 
+/**
+ * Returns the current story.
+ * Current story can be set by either creating a new story with isCurrent = true,
+ * or using the function setCurrentStory.
+ */
 export async function getCurrentStory(): Promise<Story | null> {
   let id = await getCurrentStoryId();
 
@@ -157,6 +172,10 @@ export async function getCurrentStory(): Promise<Story | null> {
   return maybeStory;
 }
 
+/**
+ * Sets the current story to the id passed in.
+ * This function can be used to continue an old story.
+ */
 export async function setCurrentStory(id: string) {
   await AsyncStorage.setItem(CURRENT_STORY_KEY, id);
 }
