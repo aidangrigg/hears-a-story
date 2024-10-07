@@ -2,9 +2,9 @@
 
 // Description: This file contains the logic for story generation.
 
-import endingsData from './endings.json';
-import milestonesData from './milestones.json';
-import introductionData from './introduction.json';
+import endingsData from './endings.json' assert { type: 'json' };
+import milestonesData from './milestones.json' assert { type: 'json' };
+import introductionData from './introductions.json' assert { type: 'json' };
 
 import { HfInference } from "@huggingface/inference";
 import { HF_ACCESS_TOKEN } from './codes.js'; //add a codes.js file in the same directory with the access token
@@ -47,6 +47,39 @@ class StoryGenerator {
         }
     }
 
+    async generateParsedText(prompt){
+        try{
+            let result = "";
+            //Use the model
+            for await (const chunk of this.inference.chatCompletionStream({
+                model: "microsoft/Phi-3-mini-4k-instruct",
+                messages: [{ role: "user", content: prompt }],
+                max_tokens: 500,
+                bad_words_ids: [[50256]]  //Prevents the end-of-text token from cutting it off
+            })) {
+                // Append each chunk's content to the result
+                result += chunk.choices[0]?.delta?.content || "";
+            }
+            // Log the full result after all chunks are processed
+            console.log("Generated story part:", result);
+
+            // Use a regular expression to match everything between [Story] and [/Story]
+            const storyMatch = result.match(/\[Story\](.*?)\[\/Story\]/s);
+
+            if (storyMatch && storyMatch[1]) {
+            const extractedStory = storyMatch[1].trim();
+            console.log("Extracted story - ", extractedStory);
+            return extractedStory;
+            } else {
+            console.log("No story found in the response!");
+            }
+
+            return result; //backup if the parsing fails
+        } catch (error) {
+            console.error('Error generating text:', error);
+        }
+    }
+
     async memoryRetrieval({userResponse, sentiment}){ //retrieves relevant parts of the memory stream
         console.log('Retrieving relevant parts of the memory stream...');
         const prompt = `
@@ -70,40 +103,38 @@ class StoryGenerator {
         Update these observations to reflect the impact of the user's actions and emotions. 
         Then, briefly explain how these changes influence the next part of the story.`;
     
-        return await generateText(prompt);
+        return await this.generateText(prompt);
     }
 
     async continueStory({context, userResponse, sentiment}){ //Generate next part of the story
         console.log('Continuing the story...');
-        const continue_prompt = `You are continuing a interactive "choose your own adventure" story and are to continue the story in one paragraph in response to the user's recent decision.
-        Given the data below, in the response you must:
-        - Consider the Context of the story
-        - React to the user's emotional state.
-        - Include the current state of the story based on the User decision.
-        - End in an open-ended question for the user to choose their next action.
-        - Follow a similar structure to the Example Output below.
+        const continue_prompt = `You are continuing an interactive "choose your own adventure" story and must generate **one concise paragraph** in response to the user's recent decision.
+
+        In your response, **do not** include any additional instructions or explanations; only include the story content. 
         
-    
+        **Your response must:**
+        - Consider the context of the story.
+        - React to the user's emotional state.
+        - Include the current state of the story based on the user decision.
+        - End with a relevant open-ended question to encourage the user to choose their next action.
+        - Follow a similar structure to the example output.
+        - **Wrap the story part in [Story] and [/Story] tags. This is mandatory.**
+        
         **Context**: ${context} 
         
         **User decision**: ${userResponse}
-    
+        
         **Emotional State**: ${sentiment}
-    
+        
         **Current Milestone**: ${this.currentMilestone}
         
-        **Example Output:**
-        
-        "You enthusiastically decided to enter the glowing portal. Stepping through, you find yourself in a shimmering, otherworldly landscape. 
-        The sky is a swirl of colors, and strange, floating islands drift by. You notice two paths: one leads to a crystal-clear lake 
-        with a mysterious island in the center, and the other to a towering, ancient tree with a ladder leading up to its branches."
-        "Now, you must choose which path to explore: the lake with the island or the ancient tree with the ladder. 
-        What do you choose to do next?"
+        **Example Output**:
+        "[Story]You enthusiastically decided to enter the glowing portal. Stepping through, you find yourself in a shimmering, otherworldly landscape. The sky is a swirl of colors, and strange, floating islands drift by. You notice two paths: one leads to a crystal-clear lake with a mysterious island in the center, and the other to a towering, ancient tree with a ladder leading up to its branches. What do you choose to do next?[/Story]"
         `;
         
         this.promptCount++;
 
-        return await generateText(continue_prompt);
+        return await this.generateParsedText(continue_prompt);
     
     }
 
@@ -169,12 +200,12 @@ class StoryGenerator {
         Based on the following story excerpt, generate the memory stream:
         "${storyExerpt}"
         `;
-        return await generateText(prompt);
+        return await this.generateText(prompt);
     }
 }  
 
 
 //EXAMPLE
-// const shortCrimeStory = new StoryGenerator('crime', 'short');
-// let intro = shortCrimeStory.generateText(shortCrimeStory.getIntroduction());
-// shortCrimeStory.continueStory({context: intro, userResponse: 'create a distraction', sentiment: 'determined'});
+const shortCrimeStory = new StoryGenerator('crime', 'short');
+let intro = shortCrimeStory.generateText(shortCrimeStory.getIntroduction());
+shortCrimeStory.continueStory({context: intro, userResponse: 'create a distraction', sentiment: 'determined'});
