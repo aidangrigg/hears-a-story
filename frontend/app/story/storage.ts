@@ -30,7 +30,6 @@ export enum StoryLength {
   LONG
 }
 
-// id is encoded into key name
 type Story = {
   id: string;
   dateCreated: Date;
