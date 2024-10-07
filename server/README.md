@@ -41,6 +41,6 @@ WAV formatted audio containing the text to speech response.
 ```bash
 curl --header "Content-Type: application/json" \
      --request POST \
-	 --data '{"text":"Hello, world!"}' \
-	 http://localhost:3000/api/tts --output test.wav
+     --data '{"text":"Hello, world!"}' \
+     http://localhost:3000/api/tts --output test.wav
 ```
