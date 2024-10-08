@@ -98,14 +98,14 @@ interface UserTextboxProps{
 
 export function UserTextbox({response, submitResponseBtn} : UserTextboxProps){
     if(response.mostCurrent == true && response.editing == true){
-        const [input, onInput] = React.useState('');
+    //    const [input, onInput] = React.useState('');
         return(
             <View style={styles.userBox}>
                 <Ionicons style={styles.userIcon} name="person-sharp" size={30} color="white" />
                 <TextInput
                     style={styles.inputBoxStyle}
-                    onChangeText={text => onInput(text)}
-                    value={input}
+                  //  onChangeText={text => onInput(text)}
+                    value={response.text}
                     placeholder="   Type response here..."
                     multiline
                     />
