@@ -1,29 +1,23 @@
+import React, { useState, useContext } from "react";
 import { Text, View, Image, Button, ScrollView, Alert, Pressable, StatusBar, StyleSheet} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Feather from '@expo/vector-icons/Feather';
 
+
+import { LibraryContext } from "@/context/LibraryContext";
+
+
 import { Header } from "@/components/header";
 
-// import CreateStory from './CreateStory';
 import Story from "@/components/storyBrief";
+
 
 // import Styles from "./Styles";
 
-type story = {
-  title: string;
-  status: string;
-  duration: string;
-};
-
 export default function Index() {
   const navigation: any = useNavigation();
-  // const [storyList, onChangeName] = React.useState('');
-  let storyList: story[] = [
-    { title: "Story 1", status: "Ongoing", duration: "2h 3m"},
-    { title: "Story 2", status: "Ongoing", duration: "2h 3m"},
-    { title: "Story 3", status: "Ongoing", duration: "2h 3m"}
-  ];
-
+  const { library } = useContext(LibraryContext)
+  
   return (
      <View
       style={{
@@ -34,18 +28,11 @@ export default function Index() {
         
       }}
     >
-      {/* <StatusBar barStyle="light-content" backgroundColor="#6a51ae" /> */}
       <Header title="Library"></Header>
-      <ScrollView style={{ width: "100%"}}>
-        {/* <View> */}
-        {storyList.map((story) => {
-          return (
-            // <View>
-              <Story storyProps={story}></Story>
-            // </View>
-          )
-        })}
-        {/* </View> */}
+      
+      <ScrollView 
+        style={{ width: "100%"}}>
+        {library.map((story) => <Story storyProps={story} key={story?.key}></Story>)}
       </ScrollView>
       
       <View>
@@ -55,13 +42,10 @@ export default function Index() {
           size={50}
           backgroundColor={"#192637"}
           borderRadius={100}
-          onPress={() => navigation.navigate("Create Story")}>
-            New Story
+          onPress={() => {
+            navigation.navigate("Create Story")
+          }}> New Story
         </Feather.Button>
-        {/* <Button
-          title="New Story"
-          onPress={() => navigation.navigate("Create Story")}>
-          </Button> */}
       </View>
     </View> 
     

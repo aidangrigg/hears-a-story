@@ -3,7 +3,7 @@ import { ActivityIndicator, Text, View, Image } from "react-native";
 
 
 
-export default function Index() {
+export default function Loading() {
   return (
     
     <View

@@ -1,13 +1,25 @@
-import React from "react";
+import React, { useContext } from "react";
 import { View, ScrollView, Text, Button, TextInput, Alert } from "react-native";
 import { StyleSheet } from 'react-native';
+import { useNavigation } from "@react-navigation/native";
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 
 import { Header } from "@/components/header";
 
+import { Story } from "@/types/Story";
+
+import { LibraryContext } from "@/context/LibraryContext";
+
 export default function CreateStory() {
+    const navigation: any = useNavigation();
+
     const [title, onChangeName] = React.useState('');
 
+    const { addStory } = useContext(LibraryContext);
+    const { library } = useContext(LibraryContext);
+    const lastBook = library.at(-1);
+    const newKey = lastBook ? lastBook.key + 1 : 0;
+    
     return (
         <View
             style={styles.container}>
@@ -50,7 +62,14 @@ export default function CreateStory() {
                     iconStyle={{marginLeft: 10}}
                     backgroundColor={"#192637"}
                     borderRadius={100}
-                    onPress={() => Alert.alert(`Created ${title}`)}></SimpleLineIcons.Button>
+                    onPress={() => {
+                        const newBook: Story = {key: newKey, title: title, status: "Ongoing", duration: "2h 3m"}
+                        addStory(newBook)
+
+                        navigation.goBack();
+                    }}>
+
+                </SimpleLineIcons.Button>
             </View>
         </View>
     )
