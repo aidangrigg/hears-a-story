@@ -2,28 +2,29 @@
     "crime": {
       "short": [
         "The crew gathers to discuss the heist plan.",
-        "The Planner chooses between distraction or stealth.",
-        "The crew faces a critical obstacle during the heist.",
+        "The crew receives unexpected intel about security measures.",
+        "The crew encounters an unexpected ally or foe during the heist.",
+        "The crew makes a difficult decision that could change the heist's outcome.",
         "The heist's outcome is revealed: success, failure, or betrayal."
       ],
       "medium": [
         "The crew gathers at the diner to finalize the plan for the heist.",
-        "The Planner makes the first key decision: distraction or stealth.",
+        "The Planner receives unexpected intel about security measures.",
         "Arriving at the mansion and initiating the chosen plan.",
-        "Encountering an unexpected obstacle during the heist.",
-        "Reaching the vault and facing the final security challenge.",
+        "Encountering an unexpected ally or foe during the heist.",
+        "Reaching the vault and making a difficult decision that could change the outcome.",
         "The outcome of the heist: success, failure, or betrayal, based on decisions."
       ],
       "long": [
-        "The crew is gathered and the Planner is introduced. A rift within the crew is revealed.",
-        "The Planner discusses key tactics with the team: distraction, stealth, or hacking.",
+        "The crew is gathered, and the Planner is introduced. A rift within the crew is revealed.",
+        "The Planner discusses key tactics with the team, focusing on recent intel about security.",
         "Recon missions begin: the team splits up to gather intel on the target location.",
-        "The crew discovers new information that challenges the original plan.",
-        "An unexpected betrayal occurs, forcing the team to adapt the heist plan.",
-        "The team infiltrates the mansion, splitting up to execute their roles.",
+        "The crew discovers new information that challenges the original plan and strategy.",
+        "An unexpected ally or foe appears, forcing the team to adapt their approach.",
+        "The team infiltrates the mansion, splitting up to execute their roles amidst tension.",
         "A crucial decision in the vault room: disable the final security or risk tripping an alarm.",
         "The heist's outcome: betrayal, success, or a narrow escape, depending on earlier choices."
-      ]
+     ]
     },
     "sci-fi": {
       "short": [
