@@ -4,6 +4,7 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { NarratorTextbox, UserTextbox, Response, UserResponse, NarratorResponse } from '@/components/ResponseBoxes';
 import { useState, useEffect } from 'react';
 import Feather from '@expo/vector-icons/Feather';
+import { Header } from "@/components/header";
 
 export default function StoryPage() {
     const navigation: any = useNavigation();
@@ -80,13 +81,14 @@ export default function StoryPage() {
 
 
 
-    let text = "TextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextText";
+    
     let storyName: string = storyProps?.title;
     return (
         
         <View style={styles.pageStyle}>
+            <Header
+                title={storyName}></Header>
             <Text>
-            {storyName}
             </Text>
                 
             
@@ -128,24 +130,23 @@ const styles = StyleSheet.create({
         paddingTop: 40,
         position: 'relative',
         backgroundColor: 'rgba(25, 38, 55, 1)',
-        borderColor: 'white',
-        borderStyle: "solid",
-        borderTopWidth: 2,
+
     },
     scrollStyle: {
+        marginTop: 40,
     },
     hidden: {
         height: 100,
     },
     settingsIcon: {
         position: 'absolute',
-        top: 10,
+        top: 180,
         right: 10,
 
     },
     saveIcon: {
         position: 'absolute',
-        top: 10,
+        top: 180,
         left: 10,
 
     },
