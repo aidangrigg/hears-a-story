@@ -17,7 +17,7 @@ import Story from "@/components/storyBrief";
 export default function Index() {
   const navigation: any = useNavigation();
   const { library } = useContext(LibraryContext)
-  
+  console.log(library)
   return (
      <View
       style={{

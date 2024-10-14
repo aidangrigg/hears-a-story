@@ -3,4 +3,6 @@ export interface Story {
   title: string;
   status: string;
   duration: string;
+  genre: string;
+  allowAdultContent: boolean;
 }
