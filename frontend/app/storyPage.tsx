@@ -1,11 +1,16 @@
 import { Text, View, FlatList, ScrollView, Alert } from "react-native";
 import { StyleSheet, Image, Platform } from 'react-native';
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { NarratorTextbox, UserTextbox, Response, UserResponse, NarratorResponse } from '@/components/ResponseBoxes';
 import { useState, useEffect } from 'react';
 import Feather from '@expo/vector-icons/Feather';
 
 
-export default function StoryPage({storyProps} : {storyProps: any}) {
+export default function StoryPage() {
+    const navigation: any = useNavigation();
+    const route = useRoute();
+    const test = route.params;
+
 
 
 
@@ -77,7 +82,7 @@ export default function StoryPage({storyProps} : {storyProps: any}) {
 
 
     let text = "TextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextText";
-    let storyName: string = storyProps?.title;
+    let storyName: string = test?.title;
     return (
         
         <View style={styles.pageStyle}>
