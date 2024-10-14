@@ -4,20 +4,20 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Entypo from '@expo/vector-icons/Entypo';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import React from 'react';
+import  { useId }  from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 
-export class Response{
+export class Response {
     id: string;
     text: string;
     type: string;
     mostCurrent: boolean;
     editing: boolean;
-   
-     constructor( id: string){
-        this.id = id;
+
+    constructor() {
+        this.id = useId();
         this.text = "NULL";
         this.type = "NULL";
         this.mostCurrent = false;
@@ -26,9 +26,9 @@ export class Response{
     }
 };
 
-export class NarratorResponse extends Response{
-    constructor(id: string, text: string){
-        super(id);
+export class NarratorResponse extends Response {
+    constructor(text: string) {
+        super();
         this.text = text;
         this.type = 'N';
         this.mostCurrent = false;
@@ -37,9 +37,9 @@ export class NarratorResponse extends Response{
 
 }
 
-export class UserResponse extends Response{
-    constructor(id: string, text: string){
-        super(id);
+export class UserResponse extends Response {
+    constructor(text: string) {
+        super();
         this.text = text;
         this.type = 'U';
         this.mostCurrent = true;
@@ -50,99 +50,99 @@ export class UserResponse extends Response{
 
 function submitUserResponse() {
     Alert.alert('You tapped the button!');
-  }
-  
+}
+
 
 
 type buttonEvents = (params: any) => any;
 
 
-interface NarratorTextboxProps{
+interface NarratorTextboxProps {
     response: NarratorResponse;
-    backBtn:buttonEvents;
-    playBtn:buttonEvents;
+    backBtn: buttonEvents;
+    playBtn: buttonEvents;
 
 }
 
-export function NarratorTextbox({response, backBtn, playBtn}:NarratorTextboxProps){
-    
+export function NarratorTextbox({ response, backBtn, playBtn }: NarratorTextboxProps) {
+
     return (
         <View style={styles.narratorBox}>
             <FontAwesome6 style={styles.narratorIcon} name="book-open-reader" size={30} color="rgba(0, 224, 255, 1)" />
             <Text style={styles.narratorText}>{response.text}</Text>
             <View style={styles.NarratorMenuView}>
-            <Entypo.Button style={styles.backIcon} name="controller-jump-to-start" size={20} color="rgba(0, 224, 255, 1)"  backgroundColor="transparent" onPress={backBtn} />
-            <Entypo.Button style={styles.playIcon} name="controller-play" size={20} color="rgba(0, 224, 255, 1)" backgroundColor="transparent" onPress={playBtn} />
-            
-             
-                
-               
-           
+                <Entypo.Button style={styles.backIcon} name="controller-jump-to-start" size={20} color="rgba(0, 224, 255, 1)" backgroundColor="transparent" onPress={backBtn} />
+                <Entypo.Button style={styles.playIcon} name="controller-play" size={20} color="rgba(0, 224, 255, 1)" backgroundColor="transparent" onPress={playBtn} />
+
+
+
+
+
 
             </View>
 
-            
 
-            
-            
+
+
+
         </View>
     );
 };
 
-interface UserTextboxProps{
+interface UserTextboxProps {
     response: UserResponse;
-    submitResponseBtn:buttonEvents;
+    submitResponseBtn: buttonEvents;
 
 
 }
 
-export function UserTextbox({response, submitResponseBtn} : UserTextboxProps){
-    if(response.mostCurrent == true && response.editing == true){
-    //    const [input, onInput] = React.useState('');
-        return(
+export function UserTextbox({ response, submitResponseBtn }: UserTextboxProps) {
+    if (response.mostCurrent == true && response.editing == true) {
+        //    const [input, onInput] = React.useState('');
+        return (
             <View style={styles.userBox}>
                 <Ionicons style={styles.userIcon} name="person-sharp" size={30} color="white" />
                 <TextInput
                     style={styles.inputBoxStyle}
-                  //  onChangeText={text => onInput(text)}
+                    //  onChangeText={text => onInput(text)}
                     value={response.text}
                     placeholder="   Type response here..."
                     multiline
-                    />
+                />
 
-                <FontAwesome.Button style={styles.submitIcon} name="pencil" size={24} color="white"  backgroundColor ='transparent' onPress={submitResponseBtn}> Submit </FontAwesome.Button>
+                <FontAwesome.Button style={styles.submitIcon} name="pencil" size={24} color="white" backgroundColor='transparent' onPress={submitResponseBtn}> Submit </FontAwesome.Button>
             </View>
-            
-        )
-    } else if(response.mostCurrent == true){
-        return(
-            <View style={styles.userBox}>
-            <Ionicons style={styles.userIcon} name="person-sharp" size={30} color="white" />
-            <Text style={styles.userText}>{response.text}</Text>
-            <AntDesign.Button style={styles.RemoveIcon} name="edit"  size={24} color="white"  backgroundColor ='transparent'> Edit Response </AntDesign.Button>
 
-        </View>
+        )
+    } else if (response.mostCurrent == true) {
+        return (
+            <View style={styles.userBox}>
+                <Ionicons style={styles.userIcon} name="person-sharp" size={30} color="white" />
+                <Text style={styles.userText}>{response.text}</Text>
+                <AntDesign.Button style={styles.RemoveIcon} name="edit" size={24} color="white" backgroundColor='transparent'> Edit Response </AntDesign.Button>
+
+            </View>
         )
     }
     return (
         <View style={styles.userBox}>
             <Ionicons style={styles.userIcon} name="person-sharp" size={30} color="white" />
             <Text style={styles.userText}>{response.text}</Text>
-           
-            
-              
-         
+
+
+
+
         </View>
     );
 };
 
 const styles = StyleSheet.create({
 
-  
-    narratorBox:{
+
+    narratorBox: {
         marginTop: 10,
-        marginLeft:12,
-        marginRight:12,
+        marginLeft: 12,
+        marginRight: 12,
         marginBottom: 10,
         borderRadius: 15,
         borderTopLeftRadius: 0,
@@ -154,43 +154,43 @@ const styles = StyleSheet.create({
         borderStyle: "solid",
         borderWidth: 1,
     },
-    narratorIcon:{
+    narratorIcon: {
         position: 'absolute',
         top: 10,
         left: 10,
     },
-    narratorText:{
+    narratorText: {
         paddingTop: 40,
         color: "rgba(0, 224, 255, 1)",
-        fontSize:16,
+        fontSize: 16,
         paddingBottom: 10,
 
     },
-    NarratorMenuView:{
-        flexDirection: 'row', 
-     
+    NarratorMenuView: {
+        flexDirection: 'row',
+
     },
-    playIcon:{
+    playIcon: {
         borderWidth: 1,
         justifyContent: 'center',
-        width:'90%',
+        width: '90%',
         borderRadius: 15,
         borderColor: "rgba(0, 224, 255, 1)",
-         
+
     },
-    
-    backIcon:{
+
+    backIcon: {
         borderWidth: 1,
         justifyContent: 'center',
-        width:'90%',
+        width: '90%',
         borderRadius: 15,
         borderColor: "rgba(0, 224, 255, 1)",
-    
+
     },
-    userBox:{
+    userBox: {
         marginTop: 10,
-        marginLeft:12,
-        marginRight:12,
+        marginLeft: 12,
+        marginRight: 12,
         marginBottom: 10,
         borderRadius: 15,
         borderTopRightRadius: 0,
@@ -202,56 +202,56 @@ const styles = StyleSheet.create({
         borderStyle: "solid",
         borderWidth: 1,
     },
-    userIcon:{
+    userIcon: {
         position: 'absolute',
         right: 10,
         top: 10,
     },
-    userText:{
+    userText: {
         paddingTop: 45,
         color: "white",
-        fontSize:16,
+        fontSize: 16,
         paddingBottom: 10,
-    
+
     },
-    RemoveIcon:{
+    RemoveIcon: {
         borderRadius: 15,
         borderColor: "white",
         borderWidth: 1,
         justifyContent: 'center',
-       
-        
+
+
 
     },
-    inputBoxStyle:{
-    
-   
-        marginTop:45,
+    inputBoxStyle: {
+
+
+        marginTop: 45,
         paddingTop: 15,
         paddingBottom: 15,
         marginBottom: 10,
         paddingLeft: 10,
         paddingRight: 10,
         backgroundColor: 'white',
-        borderWidth:1,
+        borderWidth: 1,
         borderColor: 'black',
         borderRadius: 15,
-    
+
     },
-    submitIcon:{
+    submitIcon: {
         borderWidth: 1,
         justifyContent: 'center',
-        
+
         borderRadius: 15,
         borderColor: "white",
-        
+
     },
-    text:{
-        
+    text: {
+
         paddingTop: 25,
         color: "white",
-            
+
     },
-    
-    
-  });  
+
+
+});  
