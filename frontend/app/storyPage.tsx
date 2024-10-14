@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import Feather from '@expo/vector-icons/Feather';
 
 
-export default function Index() {
+export default function StoryPage() {
 
 
     const [responses, setResponses] = useState<Response[]>([new NarratorResponse("")]);
