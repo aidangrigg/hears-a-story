@@ -33,7 +33,7 @@ export default function Story({storyProps} : {storyProps: any}) {
             backgroundColor={"#192637"} 
             iconStyle={styles.icons}
             borderRadius={100}
-            onPress={() => navigation.navigate('Story Page', {storyProps})}>
+            onPress={() => navigation.navigate('Story Page', {storyProps: storyProps})}>
           </Feather.Button>
 
           <Feather.Button
