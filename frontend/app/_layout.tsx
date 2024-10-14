@@ -1,9 +1,38 @@
-import { Stack } from "expo-router";
+
+// import { Stack } from "expo-router";
+import React, { useContext, useState} from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import { View, Text, Button, StatusBar } from "react-native";
+
+// Context API
+import { LibraryProvider } from '@/context/LibraryContext';
+
+// App Pages
+import Index from './index';
+import Loading from './loading';
+import CreateStory from './CreateStory';
+
+// Stylesheet
+import Styles from './Styles';
+
+const Stack = createNativeStackNavigator();
+const Drawer = createDrawerNavigator();
 
 export default function RootLayout() {
   return (
-    <Stack>
-      <Stack.Screen name="index" />
-    </Stack>
+    
+    <LibraryProvider>
+      {/* <StatusBar barStyle="light-content" backgroundColor="#6a51ae" />  */}
+      <NavigationContainer independent={true} >
+        <Stack.Navigator initialRouteName="Library" screenOptions={{ headerShown: false }} >
+          <Stack.Screen name="Loading" component={Loading} />
+          <Stack.Screen name="Library" component={Index}/>
+          <Stack.Screen name="Create Story" component={CreateStory} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </LibraryProvider>
+
   );
 }
