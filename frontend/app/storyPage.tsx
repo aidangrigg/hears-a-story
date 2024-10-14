@@ -5,7 +5,8 @@ import { useState, useEffect } from 'react';
 import Feather from '@expo/vector-icons/Feather';
 
 
-export default function StoryPage() {
+export default function StoryPage({storyProps} : {storyProps: any}) {
+
 
 
     const [responses, setResponses] = useState<Response[]>([new NarratorResponse("")]);
@@ -76,9 +77,15 @@ export default function StoryPage() {
 
 
     let text = "TextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextText";
-    let storyName: string = "Story Name";
+    let storyName: string = storyProps?.title;
     return (
+        
         <View style={styles.pageStyle}>
+            <Text>
+            {storyName}
+            </Text>
+                
+            
             <Feather style={styles.settingsIcon} name="settings" size={30} color="white" backgroundColor="transparent" onPress={settingsBtnEvent} />
             <Feather style={styles.saveIcon} name="save" size={30} color="white" backgroundColor="transparent" onPress={saveBtnEvent} />
 
