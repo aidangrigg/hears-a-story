@@ -30,6 +30,7 @@ export default function RootLayout() {
         <Stack.Navigator initialRouteName="Library" screenOptions={{ headerShown: false }} >
           <Stack.Screen name="Loading" component={Loading} />
           <Stack.Screen name="Library" component={Index}/>
+          <Stack.Screen name="Create Story" component={CreateStory} />
           <Stack.Screen name="Story Page" component={StoryPage} />
         
         </Stack.Navigator>
