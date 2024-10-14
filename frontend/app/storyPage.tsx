@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import Feather from '@expo/vector-icons/Feather';
 
 
-export default function StoryPage() {
+export default function StoryPage({storyProps} : {storyProps: any}) {
     const navigation: any = useNavigation();
     const route = useRoute();
     const test = route.params;
