@@ -6,6 +6,7 @@ import { useContext } from "react";
 import Feather from '@expo/vector-icons/Feather';
 
 export default function Story({storyProps} : {storyProps: any}) {
+  
   const navigation: any = useNavigation();
 
     return (
@@ -32,7 +33,7 @@ export default function Story({storyProps} : {storyProps: any}) {
             backgroundColor={"#192637"} 
             iconStyle={styles.icons}
             borderRadius={100}
-            onPress={() => Alert.alert("Play")}>
+            onPress={() => navigation.navigate("Story Page")}>
           </Feather.Button>
 
           <Feather.Button
