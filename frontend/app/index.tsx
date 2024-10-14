@@ -1,3 +1,4 @@
+
 import React, { useState, useContext } from "react";
 import { Text, View, Image, Button, ScrollView, Alert, Pressable, StatusBar, StyleSheet} from "react-native";
 import { useNavigation } from "@react-navigation/native";
@@ -25,7 +26,6 @@ export default function Index() {
         justifyContent: "center",
         alignItems: "center",
         backgroundColor: "#192637",
-        
       }}
     >
       <Header title="Library"></Header>
@@ -62,3 +62,4 @@ const styles = StyleSheet.create({
     backgroundColor: "red"
   },
 });
+
