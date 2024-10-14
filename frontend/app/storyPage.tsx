@@ -5,12 +5,11 @@ import { NarratorTextbox, UserTextbox, Response, UserResponse, NarratorResponse 
 import { useState, useEffect } from 'react';
 import Feather from '@expo/vector-icons/Feather';
 
-
-export default function StoryPage({storyProps} : {storyProps: any}) {
+export default function StoryPage() {
     const navigation: any = useNavigation();
-    const route = useRoute();
-    const test = route.params;
-
+    const route: any = useRoute();
+    const {storyProps}  = route.params;
+    console.log(storyProps)
 
 
 
@@ -82,7 +81,7 @@ export default function StoryPage({storyProps} : {storyProps: any}) {
 
 
     let text = "TextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextText";
-    let storyName: string = test?.title;
+    let storyName: string = storyProps?.title;
     return (
         
         <View style={styles.pageStyle}>
