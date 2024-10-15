@@ -12,7 +12,7 @@ export default function StoryPage() {
     const { storyProps } = route.params;
 
 
-    const test = [new NarratorResponse(""),new UserResponse("")]
+    const test = [new NarratorResponse(""), new UserResponse("")]
     const [responses, setResponses] = useState<Response[]>(test);
     const [inputText, setInputText] = useState("");
 
@@ -22,44 +22,48 @@ export default function StoryPage() {
     }
 
     //Place function to play/pause text to speech here
-    const playBtnEvent = () => {
-        Alert.alert('You tapped the button!');
+    const playBtnEvent = (id: string) => {
+        const updatedResponses = responses.map(response => {
+            if (response.id === id) {
+                const newResponse = response;
+                console.log("Old Response = " + JSON.stringify(newResponse));
+                if(newResponse.playing == false){
+                    newResponse.playing = true;
+                } else {
+                    newResponse.playing = false;
+                }
+                console.log("New Response = " + JSON.stringify(newResponse));
+                return newResponse;
+            } else {
+                return response;
+            }
+        });
+        setResponses(updatedResponses);
     }
 
     const submitResponseBtnEvent = (id: string) => {
-
-
         console.log("Old Response = " + JSON.stringify(responses[responses.length - 1]));
-
-
         const updatedResponses = responses.map(response => {
             if (response.id === id) {
-                // Increment the clicked counter
                 const newResponse = response;
                 newResponse.text = inputText;
                 newResponse.editing = false;
                 return newResponse;
             } else {
-                // The rest haven't changed
                 return response;
             }
         });
         setResponses(updatedResponses);
-
         console.log("New Response = " + JSON.stringify(responses[responses.length - 1]));
-
     }
 
     const editInput = (id: string) => {
         const updatedResponses = responses.map(response => {
             if (response.id === id) {
-                // Increment the clicked counter
                 const newResponse = response;
-
                 newResponse.editing = true;
                 return newResponse;
             } else {
-                // The rest haven't changed
                 return response;
             }
         });
@@ -72,13 +76,13 @@ export default function StoryPage() {
         Alert.alert('You tapped the button!');
     }
 
-    const settingsBtnEvent = () => {
-        //     console.log(inputText);
-        console.log(responses);
+    const useSettingsBtnEvent = () => {
+        //why doesnt this work?!?!
+        console.log(createResponse("", 0));
 
-        const response = createResponse("", 0);
-        const newResponses = [...responses, new NarratorResponse("")];
-        setResponses(newResponses);
+        //const response = createResponse("", 0);
+        // const newResponses = [...responses, new NarratorResponse("")];
+        //  setResponses([...responses, new NarratorResponse("")]);
 
 
     }
@@ -91,18 +95,10 @@ export default function StoryPage() {
         } else {
             response = new UserResponse(text);
         }
-
         return response;
 
 
     }
-
-
-
-
-
-
-
 
 
     let storyName: string = storyProps?.title;
@@ -115,7 +111,7 @@ export default function StoryPage() {
             </Text>
 
 
-            <Feather style={styles.settingsIcon} name="settings" size={30} color="white" backgroundColor="transparent" onPress={() => settingsBtnEvent()} />
+            <Feather style={styles.settingsIcon} name="settings" size={30} color="white" backgroundColor="transparent" onPress={() => useSettingsBtnEvent()} />
             <Feather style={styles.saveIcon} name="save" size={30} color="white" backgroundColor="transparent" onPress={saveBtnEvent} />
 
             <ScrollView style={styles.scrollStyle} >
@@ -133,7 +129,7 @@ export default function StoryPage() {
                     return <NarratorTextbox
                         response={response}
                         backBtn={backBtnEvent}
-                        playBtn={playBtnEvent}
+                        playBtn={() => playBtnEvent(response.id)}
                     />;
 
                 })}

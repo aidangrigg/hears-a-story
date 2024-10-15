@@ -15,6 +15,7 @@ export class Response {
     type: string;
     mostCurrent: boolean;
     editing: boolean;
+    playing: boolean;
 
     constructor() {
         this.id = useId();
@@ -22,6 +23,7 @@ export class Response {
         this.type = "NULL";
         this.mostCurrent = false;
         this.editing = false;
+        this.playing = false;
 
     }
 };
@@ -32,6 +34,7 @@ export class NarratorResponse extends Response {
         this.text = text;
         this.type = 'N';
         this.mostCurrent = false;
+        this.playing = false;
         this.editing = false;
     }
 
@@ -44,12 +47,9 @@ export class UserResponse extends Response {
         this.type = 'U';
         this.mostCurrent = true;
         this.editing = true;
+        this.playing = false;
     }
 
-}
-
-function submitUserResponse() {
-    Alert.alert('You tapped the button!');
 }
 
 
@@ -60,25 +60,33 @@ type buttonEvents = (params: any) => any;
 interface NarratorTextboxProps {
     response: NarratorResponse;
     backBtn: buttonEvents;
-    playBtn: buttonEvents;
+    playBtn: any;
 
 }
 
-export function NarratorTextbox({ response, backBtn, playBtn }: NarratorTextboxProps) {
 
+
+export function NarratorTextbox({ response, backBtn, playBtn }: NarratorTextboxProps) {
+    if(response.playing == true){
+        return (
+            <View style={styles.narratorBox}>
+                <FontAwesome6 style={styles.narratorIcon} name="book-open-reader" size={30} color="rgba(0, 224, 255, 1)" />
+                <Text style={styles.narratorText}>{response.text}</Text>
+                <View style={styles.NarratorMenuView}>
+                    <Entypo.Button style={styles.backIcon} name="controller-jump-to-start" size={20} color="rgba(0, 224, 255, 1)" backgroundColor="transparent" onPress={backBtn} />
+                    <Entypo.Button style={styles.playIcon} id="playButton" name="controller-paus" size={20} color="rgba(0, 224, 255, 1)" backgroundColor="transparent" onPress={playBtn} />
+                </View>
+            </View>
+        );
+
+    }
     return (
         <View style={styles.narratorBox}>
             <FontAwesome6 style={styles.narratorIcon} name="book-open-reader" size={30} color="rgba(0, 224, 255, 1)" />
             <Text style={styles.narratorText}>{response.text}</Text>
             <View style={styles.NarratorMenuView}>
                 <Entypo.Button style={styles.backIcon} name="controller-jump-to-start" size={20} color="rgba(0, 224, 255, 1)" backgroundColor="transparent" onPress={backBtn} />
-                <Entypo.Button style={styles.playIcon} name="controller-play" size={20} color="rgba(0, 224, 255, 1)" backgroundColor="transparent" onPress={playBtn} />
-
-
-
-
-
-
+                <Entypo.Button style={styles.playIcon} id="playButton" name="controller-play" size={20} color="rgba(0, 224, 255, 1)" backgroundColor="transparent" onPress={playBtn} />
             </View>
 
 
