@@ -5,6 +5,7 @@ import { NarratorTextbox, UserTextbox, Response, UserResponse, NarratorResponse 
 import React, { useState, useEffect } from 'react';
 import Feather from '@expo/vector-icons/Feather';
 import { Header } from "@/components/header";
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 export default function StoryPage() {
     const navigation: any = useNavigation();
@@ -15,6 +16,7 @@ export default function StoryPage() {
     const test = [new NarratorResponse(""), new UserResponse("")]
     const [responses, setResponses] = useState<Response[]>(test);
     const [inputText, setInputText] = useState("");
+    const [listening, setlistening] = useState(true);
 
     //Place function to play from beggining text to speech here
     const backBtnEvent = () => {
@@ -100,6 +102,19 @@ export default function StoryPage() {
 
     }
 
+    // const micIcon = () => {
+    //     if(listening){
+    //         return(
+    //             <Feather style={styles.micIcon} name="mic" size={30} color="white" backgroundColor="transparent" onPress={saveBtnEvent} />
+
+    //         )
+    //     }
+    //     return(
+    //     <Feather style={styles.micIcon} name="mic-off" size={30} color="white" backgroundColor="transparent" onPress={saveBtnEvent} />
+    // )
+
+    // }
+
 
     let storyName: string = storyProps?.title;
     return (
@@ -112,6 +127,7 @@ export default function StoryPage() {
 
 
             <Feather style={styles.settingsIcon} name="settings" size={30} color="white" backgroundColor="transparent" onPress={() => useSettingsBtnEvent()} />
+            <Feather style={styles.micIcon} name="mic" size={30} color="white" backgroundColor="transparent" onPress={saveBtnEvent} />
             <Feather style={styles.saveIcon} name="save" size={30} color="white" backgroundColor="transparent" onPress={saveBtnEvent} />
 
             <ScrollView style={styles.scrollStyle} >
@@ -171,8 +187,13 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 180,
         left: 10,
-
     },
+    micIcon: {
+        position: 'absolute',
+        top: 180,
+        left: 190,
+    },
+
 
 
 
