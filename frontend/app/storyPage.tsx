@@ -2,39 +2,85 @@ import { Text, View, FlatList, ScrollView, Alert } from "react-native";
 import { StyleSheet, Image, Platform } from 'react-native';
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { NarratorTextbox, UserTextbox, Response, UserResponse, NarratorResponse } from '@/components/ResponseBoxes';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Feather from '@expo/vector-icons/Feather';
 import { Header } from "@/components/header";
 
 export default function StoryPage() {
     const navigation: any = useNavigation();
     const route: any = useRoute();
-    const {storyProps}  = route.params;
-    console.log(storyProps)
+    const { storyProps } = route.params;
 
 
-
-    const [responses, setResponses] = useState<Response[]>([new NarratorResponse("")]);
+    const test = [new NarratorResponse(""),new UserResponse("")]
+    const [responses, setResponses] = useState<Response[]>(test);
     const [inputText, setInputText] = useState("");
 
+    //Place function to play from beggining text to speech here
     const backBtnEvent = () => {
         Alert.alert('You tapped the button!');
     }
 
+    //Place function to play/pause text to speech here
     const playBtnEvent = () => {
         Alert.alert('You tapped the button!');
     }
 
-    const submitResponseBtnEvent = () => {
-        Alert.alert('You tapped the button!');
+    const submitResponseBtnEvent = (id: string) => {
+
+
+        console.log("Old Response = " + JSON.stringify(responses[responses.length - 1]));
+
+
+        const updatedResponses = responses.map(response => {
+            if (response.id === id) {
+                // Increment the clicked counter
+                const newResponse = response;
+                newResponse.text = inputText;
+                newResponse.editing = false;
+                return newResponse;
+            } else {
+                // The rest haven't changed
+                return response;
+            }
+        });
+        setResponses(updatedResponses);
+
+        console.log("New Response = " + JSON.stringify(responses[responses.length - 1]));
+
     }
 
+    const editInput = (id: string) => {
+        const updatedResponses = responses.map(response => {
+            if (response.id === id) {
+                // Increment the clicked counter
+                const newResponse = response;
+
+                newResponse.editing = true;
+                return newResponse;
+            } else {
+                // The rest haven't changed
+                return response;
+            }
+        });
+        setResponses(updatedResponses);
+
+    }
+
+    //PLace function to save responses to storage here
     const saveBtnEvent = () => {
         Alert.alert('You tapped the button!');
     }
 
     const settingsBtnEvent = () => {
-        setResponses([...responses, createResponse("", 0)]);
+        //     console.log(inputText);
+        console.log(responses);
+
+        const response = createResponse("", 0);
+        const newResponses = [...responses, new NarratorResponse("")];
+        setResponses(newResponses);
+
+
     }
 
     const createResponse = (text: string, type: number) => {
@@ -48,13 +94,9 @@ export default function StoryPage() {
 
         return response;
 
-        
+
     }
 
-    // useEffect(() => {
-    //     let eg =createResponse("",0);
-    //     setResponses([...responses, eg]);
-    // },[]);
 
 
 
@@ -63,44 +105,29 @@ export default function StoryPage() {
 
 
 
-
-    // let text1 = new NarratorResponse("TextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextText");
-    // let text2 = new UserResponse("TextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextText");
-    // let text3 = new NarratorResponse("TextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextTextText");
-    // let text4 = new UserResponse("dddddd");
-    // text2.mostCurrent = false;
-    // const Responses: Response[] = [text1, text2, text3, text4];
-    // text4.editing = false;
-    // useEffect(() => {
-    // addResponse();
-    // }, []);
-
-
-
-
-
-
-
-    
     let storyName: string = storyProps?.title;
     return (
-        
+
         <View style={styles.pageStyle}>
             <Header
-                title={storyName}></Header>
+                title={storyProps?.title}></Header>
             <Text>
             </Text>
-                
-            
-            <Feather style={styles.settingsIcon} name="settings" size={30} color="white" backgroundColor="transparent" onPress={settingsBtnEvent} />
+
+
+            <Feather style={styles.settingsIcon} name="settings" size={30} color="white" backgroundColor="transparent" onPress={() => settingsBtnEvent()} />
             <Feather style={styles.saveIcon} name="save" size={30} color="white" backgroundColor="transparent" onPress={saveBtnEvent} />
 
             <ScrollView style={styles.scrollStyle} >
                 {responses.map(response => {
                     if (response.type == "U") {
                         return <UserTextbox
+                            key={response.id}
                             response={response}
-                            submitResponseBtn={submitResponseBtnEvent} />
+                            setInput={setInputText}
+                            input={inputText}
+                            submitInput={() => submitResponseBtnEvent(response.id)}
+                            editInput={() => editInput(response.id)} />
 
                     };
                     return <NarratorTextbox

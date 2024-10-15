@@ -91,26 +91,28 @@ export function NarratorTextbox({ response, backBtn, playBtn }: NarratorTextboxP
 
 interface UserTextboxProps {
     response: UserResponse;
-    submitResponseBtn: buttonEvents;
+    submitInput: any;
+    input: string;
+    setInput: any;
+    editInput: any;
 
 
 }
 
-export function UserTextbox({ response, submitResponseBtn }: UserTextboxProps) {
+export function UserTextbox({ response, submitInput, input, setInput, editInput }: UserTextboxProps) {
     if (response.mostCurrent == true && response.editing == true) {
-        //    const [input, onInput] = React.useState('');
         return (
             <View style={styles.userBox}>
                 <Ionicons style={styles.userIcon} name="person-sharp" size={30} color="white" />
                 <TextInput
                     style={styles.inputBoxStyle}
-                    //  onChangeText={text => onInput(text)}
-                    value={response.text}
+                    onChangeText={text => setInput(text)}
+                    value={input}
                     placeholder="   Type response here..."
                     multiline
                 />
 
-                <FontAwesome.Button style={styles.submitIcon} name="pencil" size={24} color="white" backgroundColor='transparent' onPress={submitResponseBtn}> Submit </FontAwesome.Button>
+                <FontAwesome.Button style={styles.submitIcon} name="pencil" size={24} color="white" backgroundColor='transparent' onPress={submitInput}> Submit </FontAwesome.Button>
             </View>
 
         )
@@ -119,7 +121,7 @@ export function UserTextbox({ response, submitResponseBtn }: UserTextboxProps) {
             <View style={styles.userBox}>
                 <Ionicons style={styles.userIcon} name="person-sharp" size={30} color="white" />
                 <Text style={styles.userText}>{response.text}</Text>
-                <AntDesign.Button style={styles.RemoveIcon} name="edit" size={24} color="white" backgroundColor='transparent'> Edit Response </AntDesign.Button>
+                <AntDesign.Button style={styles.RemoveIcon} name="edit" size={24} color="white" backgroundColor='transparent' onPress={editInput}> Edit Response </AntDesign.Button>
 
             </View>
         )
