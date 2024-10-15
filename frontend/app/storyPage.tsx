@@ -3,6 +3,7 @@ import { StyleSheet, Image, Platform } from 'react-native';
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { NarratorTextbox, UserTextbox, Response, UserResponse, NarratorResponse } from '@/components/ResponseBoxes';
 import { useState, useEffect } from 'react';
+import {ExpoSpeechRecognitionModule, useSpeechRecognitionEvent,} from "expo-speech-recognition";
 import Feather from '@expo/vector-icons/Feather';
 
 export default function StoryPage() {
@@ -11,10 +12,11 @@ export default function StoryPage() {
     const {storyProps}  = route.params;
     console.log(storyProps)
 
-
-
     const [responses, setResponses] = useState<Response[]>([new NarratorResponse("")]);
     const [inputText, setInputText] = useState("");
+    const [recognizing, setRecognizing] = useState(false);
+    const [transcript, setTranscript] = useState("");
+    let [timeoutID] = useState(Number)    
 
     const backBtnEvent = () => {
         Alert.alert('You tapped the button!');
@@ -22,6 +24,7 @@ export default function StoryPage() {
 
     const playBtnEvent = () => {
         Alert.alert('You tapped the button!');
+        handleSTT()
     }
 
     const submitResponseBtnEvent = () => {
@@ -49,6 +52,55 @@ export default function StoryPage() {
 
         
     }
+
+    const stopRecording = () => {
+        ExpoSpeechRecognitionModule.stop()
+    }
+
+    useSpeechRecognitionEvent("start", () => {
+        setRecognizing(true);
+        // console.log("STT Recording Started")
+    })
+    useSpeechRecognitionEvent("end", () => {
+        setRecognizing(false);
+        // console.log("STT END")
+        createResponse(transcript, 1)
+        // setTimeout(handleSTT, 2000)
+    })
+    useSpeechRecognitionEvent("result", (event: any) => {
+        // console.log("STT RESULT")
+        window.clearTimeout(timeoutID)
+        if (event.isFinal){
+          setTranscript(transcript => {
+            console.log(transcript + event.results[0]?.transcript)
+            return transcript + event.results[0]?.transcript;
+          });
+          timeoutID = (window.setTimeout(stopRecording, 4000))
+          console.log(timeoutID)
+        }
+        // console.log(event);
+    });
+    useSpeechRecognitionEvent("error", (event: any) => {
+        console.log("error code:", event.error, "error messsage:", event.message);
+    });
+
+    const handleSTT = async () => {
+        const result = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
+        if (!result.granted) {
+            console.warn("Permissions not granted", result);
+            return;
+        }
+        // Start speech recognition
+        ExpoSpeechRecognitionModule.start({
+            lang: "en-US",
+            interimResults: true,
+            maxAlternatives: 1,
+            continuous: true,
+            requiresOnDeviceRecognition: false,
+            addsPunctuation: true,
+            contextualStrings: ["Carlsen", "Nepomniachtchi", "Praggnanandhaa"],
+        });
+    };
 
     // useEffect(() => {
     //     let eg =createResponse("",0);
