@@ -2,6 +2,7 @@ import { Text, View, FlatList, ScrollView, Alert } from "react-native";
 import { StyleSheet, Image, Platform } from 'react-native';
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { NarratorTextbox, UserTextbox, Response, UserResponse, NarratorResponse } from '@/components/ResponseBoxes';
+import {ExpoSpeechRecognitionModule, useSpeechRecognitionEvent,} from "expo-speech-recognition";
 import React, { useState, useEffect } from 'react';
 import Feather from '@expo/vector-icons/Feather';
 import { Header } from "@/components/header";
@@ -33,9 +34,12 @@ export default function StoryPage() {
     const route: any = useRoute();
     const { storyProps } = route.params;
 
+    const [responses, setResponses] = useState<Response[]>([new NarratorResponse("")]);
+    const [recognizing, setRecognizing] = useState(false);
+    const [transcript, setTranscript] = useState("");
+    let [timeoutID] = useState(Number)    
 
     const test = [new NarratorResponse(""), new UserResponse("")]
-    const [responses, setResponses] = useState<Response[]>(test);
     const [inputText, setInputText] = useState("");
     const [listening, setlistening] = useState(true);
 
@@ -44,8 +48,10 @@ export default function StoryPage() {
         Alert.alert('You tapped the button!');
     }
 
+ 
     //Place function to play/pause text to speech here
     const playBtnEvent = (id: string) => {
+        handleSTT();
         const updatedResponses = responses.map(response => {
             if (response.id === id) {
                 const newResponse = response;
@@ -106,7 +112,7 @@ export default function StoryPage() {
 
     //PLace function to save responses to storage here
     const backBtnEvent = () => {
-        navigation.navigate("Index")
+        navigation.navigate("Index");
     }
 
     // const useSettingsBtnEvent = () => {
@@ -133,11 +139,55 @@ export default function StoryPage() {
 
     }
 
-    
+    const stopRecording = () => {
+        ExpoSpeechRecognitionModule.stop()
+    }
 
-    
+    useSpeechRecognitionEvent("start", () => {
+        setRecognizing(true);
+        // console.log("STT Recording Started")
+    })
+    useSpeechRecognitionEvent("end", () => {
+        setRecognizing(false);
+        // console.log("STT END")
+        createResponse(transcript, 1)
+        // setTimeout(handleSTT, 2000)
+    })
+    useSpeechRecognitionEvent("result", (event: any) => {
+        // console.log("STT RESULT")
+        window.clearTimeout(timeoutID)
+        if (event.isFinal){
+          setTranscript(transcript => {
+            console.log(transcript + event.results[0]?.transcript)
+            return transcript + event.results[0]?.transcript;
+          });
+          timeoutID = (window.setTimeout(stopRecording, 4000))
+          console.log(timeoutID)
+        }
+        // console.log(event);
+    });
+    useSpeechRecognitionEvent("error", (event: any) => {
+        console.log("error code:", event.error, "error messsage:", event.message);
+    });
 
-    
+    const handleSTT = async () => {
+        const result = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
+        if (!result.granted) {
+            console.warn("Permissions not granted", result);
+            return;
+        }
+        // Start speech recognition
+        ExpoSpeechRecognitionModule.start({
+            lang: "en-US",
+            interimResults: true,
+            maxAlternatives: 1,
+            continuous: true,
+            requiresOnDeviceRecognition: false,
+            addsPunctuation: true,
+            contextualStrings: ["Carlsen", "Nepomniachtchi", "Praggnanandhaa"],
+        });
+    };
+
 
 
     let storyName: string = storyProps?.title;
@@ -152,6 +202,7 @@ export default function StoryPage() {
 
             {/* <Feather style={styles.settingsIcon} name="settings" size={30} color="white" backgroundColor="transparent" onPress={() => useSettingsBtnEvent()} /> */}
             <MicIcon listening={listening} micBtnEvent={() => micBtnEvent()} />
+            <Feather style={styles.micIcon} name="mic" size={30} color="white" backgroundColor="transparent" onPress={micBtnEvent} />
             <Feather style={styles.saveIcon} name="arrow-left-circle" size={30} color="white" backgroundColor="transparent" onPress={backBtnEvent} />
 
             <ScrollView style={styles.scrollStyle} >
