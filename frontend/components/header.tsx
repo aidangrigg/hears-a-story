@@ -13,10 +13,10 @@ export function Header(props: headerProps) {
             <View
                 style={styles.container}> 
                 <Text
-                    style={styles.name}>HEAR'S A STORY</Text>
+                    style={styles.logoText}>HEAR'S A STORY</Text>
                 <Image 
-                    style={styles.logo}
-                    source={require('@/assets/images/logo.png')}></Image>
+                    style={styles.logoImage}
+                    source={require('@/assets/images/hears-a-story-logo.png')}></Image>
             </View>
             <Text
                 style={styles.heading}>{props.title}</Text>
@@ -57,4 +57,29 @@ const styles = StyleSheet.create({
         fontSize: 32,
         fontWeight: "500"
     },
+    logoImage:{
+        height: 60,
+        width: 60,
+        bottom: -5,
+        right: -275,
+        position: 'absolute',
+    
+      },
+      titleContainer: {
+        paddingBottom: 110,
+        borderColor: 'white',
+        borderStyle: "solid",
+        borderBottomWidth: 1,
+       
+      },
+      logoText:{
+        color: 'white',
+        fontWeight: 'bold',
+        fontFamily: "Roboto",
+        textAlign: 'center',
+        bottom: 10,
+        right: -220,
+        position: 'absolute',
+        fontSize: 16,
+      },
   });

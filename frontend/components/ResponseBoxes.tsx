@@ -7,6 +7,8 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import  { useId }  from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import 'react-native-get-random-values';
+import { v4 as uuidv4 } from 'uuid';
 
 
 export class Response {
@@ -15,13 +17,15 @@ export class Response {
     type: string;
     mostCurrent: boolean;
     editing: boolean;
+    playing: boolean;
 
     constructor() {
-        this.id = useId();
+        this.id = uuidv4();
         this.text = "NULL";
         this.type = "NULL";
         this.mostCurrent = false;
         this.editing = false;
+        this.playing = false;
 
     }
 };
@@ -32,6 +36,7 @@ export class NarratorResponse extends Response {
         this.text = text;
         this.type = 'N';
         this.mostCurrent = false;
+        this.playing = false;
         this.editing = false;
     }
 
@@ -44,12 +49,9 @@ export class UserResponse extends Response {
         this.type = 'U';
         this.mostCurrent = true;
         this.editing = true;
+        this.playing = false;
     }
 
-}
-
-function submitUserResponse() {
-    Alert.alert('You tapped the button!');
 }
 
 
@@ -60,25 +62,33 @@ type buttonEvents = (params: any) => any;
 interface NarratorTextboxProps {
     response: NarratorResponse;
     backBtn: buttonEvents;
-    playBtn: buttonEvents;
+    playBtn: any;
 
 }
 
-export function NarratorTextbox({ response, backBtn, playBtn }: NarratorTextboxProps) {
 
+
+export function NarratorTextbox({ response, backBtn, playBtn }: NarratorTextboxProps) {
+    if(response.playing == true){
+        return (
+            <View style={styles.narratorBox}>
+                <FontAwesome6 style={styles.narratorIcon} name="book-open-reader" size={30} color="rgba(0, 224, 255, 1)" />
+                <Text style={styles.narratorText}>{response.text}</Text>
+                <View style={styles.NarratorMenuView}>
+                    <Entypo.Button style={styles.backIcon} name="controller-jump-to-start" size={20} color="rgba(0, 224, 255, 1)" backgroundColor="transparent" onPress={backBtn} />
+                    <Entypo.Button style={styles.playIcon} id="playButton" name="controller-paus" size={20} color="rgba(0, 224, 255, 1)" backgroundColor="transparent" onPress={playBtn} />
+                </View>
+            </View>
+        );
+
+    }
     return (
         <View style={styles.narratorBox}>
             <FontAwesome6 style={styles.narratorIcon} name="book-open-reader" size={30} color="rgba(0, 224, 255, 1)" />
             <Text style={styles.narratorText}>{response.text}</Text>
             <View style={styles.NarratorMenuView}>
                 <Entypo.Button style={styles.backIcon} name="controller-jump-to-start" size={20} color="rgba(0, 224, 255, 1)" backgroundColor="transparent" onPress={backBtn} />
-                <Entypo.Button style={styles.playIcon} name="controller-play" size={20} color="rgba(0, 224, 255, 1)" backgroundColor="transparent" onPress={playBtn} />
-
-
-
-
-
-
+                <Entypo.Button style={styles.playIcon} id="playButton" name="controller-play" size={20} color="rgba(0, 224, 255, 1)" backgroundColor="transparent" onPress={playBtn} />
             </View>
 
 
@@ -91,26 +101,28 @@ export function NarratorTextbox({ response, backBtn, playBtn }: NarratorTextboxP
 
 interface UserTextboxProps {
     response: UserResponse;
-    submitResponseBtn: buttonEvents;
+    submitInput: any;
+    input: string;
+    setInput: any;
+    editInput: any;
 
 
 }
 
-export function UserTextbox({ response, submitResponseBtn }: UserTextboxProps) {
+export function UserTextbox({ response, submitInput, input, setInput, editInput }: UserTextboxProps) {
     if (response.mostCurrent == true && response.editing == true) {
-        //    const [input, onInput] = React.useState('');
         return (
             <View style={styles.userBox}>
                 <Ionicons style={styles.userIcon} name="person-sharp" size={30} color="white" />
                 <TextInput
                     style={styles.inputBoxStyle}
-                    //  onChangeText={text => onInput(text)}
-                    value={response.text}
+                    onChangeText={text => setInput(text)}
+                    value={input}
                     placeholder="   Type response here..."
                     multiline
                 />
 
-                <FontAwesome.Button style={styles.submitIcon} name="pencil" size={24} color="white" backgroundColor='transparent' onPress={submitResponseBtn}> Submit </FontAwesome.Button>
+                <FontAwesome.Button style={styles.submitIcon} name="pencil" size={24} color="white" backgroundColor='transparent' onPress={submitInput}> Submit </FontAwesome.Button>
             </View>
 
         )
@@ -119,7 +131,7 @@ export function UserTextbox({ response, submitResponseBtn }: UserTextboxProps) {
             <View style={styles.userBox}>
                 <Ionicons style={styles.userIcon} name="person-sharp" size={30} color="white" />
                 <Text style={styles.userText}>{response.text}</Text>
-                <AntDesign.Button style={styles.RemoveIcon} name="edit" size={24} color="white" backgroundColor='transparent'> Edit Response </AntDesign.Button>
+                <AntDesign.Button style={styles.RemoveIcon} name="edit" size={24} color="white" backgroundColor='transparent' onPress={editInput}> Edit Response </AntDesign.Button>
 
             </View>
         )
