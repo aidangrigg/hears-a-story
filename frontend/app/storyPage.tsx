@@ -143,6 +143,7 @@ export default function StoryPage() {
 
                     };
                     return <NarratorTextbox
+                    key={response.id}
                         response={response}
                         backBtn={backBtnEvent}
                         playBtn={() => playBtnEvent(response.id)}

@@ -7,6 +7,8 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import  { useId }  from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import 'react-native-get-random-values';
+import { v4 as uuidv4 } from 'uuid';
 
 
 export class Response {
@@ -18,7 +20,7 @@ export class Response {
     playing: boolean;
 
     constructor() {
-        this.id = useId();
+        this.id = uuidv4();
         this.text = "NULL";
         this.type = "NULL";
         this.mostCurrent = false;
