@@ -11,19 +11,19 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 interface MicIconProps {
     
     listening: boolean;
-    saveBtnEvent: any;
+    micBtnEvent: any;
 }
 
-export function MicIcon({ listening, saveBtnEvent}: MicIconProps) {
+export function MicIcon({ listening, micBtnEvent}: MicIconProps) {
     if(listening){
         return (
-            <Feather style={styles.micIcon} name="mic" size={30} color="white" backgroundColor="transparent" onPress={saveBtnEvent} />
+            <Feather style={styles.micIcon} name="mic" size={30} color="white" backgroundColor="transparent" onPress={micBtnEvent} />
             
         );
 
     }
     return (
-        <Feather style={styles.micIcon} name="mic-off" size={30} color="white" backgroundColor="transparent" onPress={saveBtnEvent} />
+        <Feather style={styles.micIcon} name="mic-off" size={30} color="white" backgroundColor="transparent" onPress={micBtnEvent} />
     );
 };
 
@@ -111,8 +111,8 @@ export default function StoryPage() {
     }
 
     //PLace function to save responses to storage here
-    const saveBtnEvent = () => {
-        Alert.alert('You tapped the button!');
+    const backBtnEvent = () => {
+        navigation.navigate("Index");
     }
 
     // const useSettingsBtnEvent = () => {
@@ -188,10 +188,6 @@ export default function StoryPage() {
         });
     };
 
-    // useEffect(() => {
-    //     let eg =createResponse("",0);
-    //     setResponses([...responses, eg]);
-    // },[]);
 
 
     let storyName: string = storyProps?.title;
@@ -205,9 +201,9 @@ export default function StoryPage() {
 
 
             {/* <Feather style={styles.settingsIcon} name="settings" size={30} color="white" backgroundColor="transparent" onPress={() => useSettingsBtnEvent()} /> */}
-            <MicIcon listening={listening} saveBtnEvent={() => saveBtnEvent()} />
+            <MicIcon listening={listening} micBtnEvent={() => micBtnEvent()} />
             <Feather style={styles.micIcon} name="mic" size={30} color="white" backgroundColor="transparent" onPress={micBtnEvent} />
-            <Feather style={styles.saveIcon} name="save" size={30} color="white" backgroundColor="transparent" onPress={saveBtnEvent} />
+            <Feather style={styles.saveIcon} name="arrow-left-circle" size={30} color="white" backgroundColor="transparent" onPress={backBtnEvent} />
 
             <ScrollView style={styles.scrollStyle} >
                 {responses.map(response => {
