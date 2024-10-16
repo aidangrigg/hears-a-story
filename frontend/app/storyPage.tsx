@@ -7,6 +7,27 @@ import Feather from '@expo/vector-icons/Feather';
 import { Header } from "@/components/header";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
+interface MicIconProps {
+    
+    listening: boolean;
+    saveBtnEvent: any;
+}
+
+export function MicIcon({ listening, saveBtnEvent}: MicIconProps) {
+    if(listening){
+        return (
+            <Feather style={styles.micIcon} name="mic" size={30} color="white" backgroundColor="transparent" onPress={saveBtnEvent} />
+            
+        );
+
+    }
+    return (
+        <Feather style={styles.micIcon} name="mic-off" size={30} color="white" backgroundColor="transparent" onPress={saveBtnEvent} />
+    );
+};
+
+
+
 export default function StoryPage() {
     const navigation: any = useNavigation();
     const route: any = useRoute();
@@ -19,7 +40,7 @@ export default function StoryPage() {
     const [listening, setlistening] = useState(true);
 
     //Place function to play from beggining text to speech here
-    const backBtnEvent = () => {
+    const playfromStartBtnEvent = () => {
         Alert.alert('You tapped the button!');
     }
 
@@ -41,6 +62,16 @@ export default function StoryPage() {
             }
         });
         setResponses(updatedResponses);
+    }
+
+    const micBtnEvent = () => {
+        if(listening){
+            setlistening(false);
+
+        } else{
+            setlistening(true);
+        }
+        
     }
 
     const submitResponseBtnEvent = (id: string) => {
@@ -78,16 +109,16 @@ export default function StoryPage() {
         Alert.alert('You tapped the button!');
     }
 
-    const useSettingsBtnEvent = () => {
-        //why doesnt this work?!?!
-        console.log(createResponse("", 0));
+    // const useSettingsBtnEvent = () => {
+    //     //why doesnt this work?!?!
+    //    // console.log(createResponse("", 0));
 
-        //const response = createResponse("", 0);
-        // const newResponses = [...responses, new NarratorResponse("")];
-        //  setResponses([...responses, new NarratorResponse("")]);
+    //     //const response = createResponse("", 0);
+    //     // const newResponses = [...responses, new NarratorResponse("")];
+    //     setResponses([...responses, createResponse("", 0)]);
 
 
-    }
+    // }
 
     const createResponse = (text: string, type: number) => {
         let response: Response;
@@ -102,18 +133,11 @@ export default function StoryPage() {
 
     }
 
-    // const micIcon = () => {
-    //     if(listening){
-    //         return(
-    //             <Feather style={styles.micIcon} name="mic" size={30} color="white" backgroundColor="transparent" onPress={saveBtnEvent} />
+    
 
-    //         )
-    //     }
-    //     return(
-    //     <Feather style={styles.micIcon} name="mic-off" size={30} color="white" backgroundColor="transparent" onPress={saveBtnEvent} />
-    // )
+    
 
-    // }
+    
 
 
     let storyName: string = storyProps?.title;
@@ -126,8 +150,9 @@ export default function StoryPage() {
             </Text>
 
 
-            <Feather style={styles.settingsIcon} name="settings" size={30} color="white" backgroundColor="transparent" onPress={() => useSettingsBtnEvent()} />
-            <Feather style={styles.micIcon} name="mic" size={30} color="white" backgroundColor="transparent" onPress={saveBtnEvent} />
+            {/* <Feather style={styles.settingsIcon} name="settings" size={30} color="white" backgroundColor="transparent" onPress={() => useSettingsBtnEvent()} /> */}
+            <MicIcon listening={listening} saveBtnEvent={() => saveBtnEvent()} />
+            <Feather style={styles.micIcon} name="mic" size={30} color="white" backgroundColor="transparent" onPress={micBtnEvent} />
             <Feather style={styles.saveIcon} name="save" size={30} color="white" backgroundColor="transparent" onPress={saveBtnEvent} />
 
             <ScrollView style={styles.scrollStyle} >
@@ -145,7 +170,7 @@ export default function StoryPage() {
                     return <NarratorTextbox
                     key={response.id}
                         response={response}
-                        backBtn={backBtnEvent}
+                        backBtn={playfromStartBtnEvent}
                         playBtn={() => playBtnEvent(response.id)}
                     />;
 
