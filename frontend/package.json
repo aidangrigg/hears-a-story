@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",
-    "@huggingface/inference": "^2.8.0",
+    "@huggingface/inference": "^2.8.1",
     "@react-native-voice/voice": "^3.2.4",
     "@react-navigation/native": "^6.0.2",
     "@xenova/transformers": "^2.17.2",
