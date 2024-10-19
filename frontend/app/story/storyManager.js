@@ -6,27 +6,36 @@ import endingsData from './endings.json' with { type: 'json' };
 import milestonesData from './milestones.json' with { type: 'json' };
 import introductionData from './introductions.json' with { type: 'json' };
 import goalsData from './goals.json' with { type: 'json' };
+
+import * as Storage from "./storage";
+
 // import { createInterface } from 'readline'; //for testing with user input
 
 import { HfInference } from "@huggingface/inference";
 import { HF_ACCESS_TOKEN } from './codes.js'; //add a codes.js file in the same directory with the access token
 
+// TODO ending handling has to be set up (not sure if it should be here or on the frontend)
 export class StoryGenerator {
-    constructor(genre, length) {
-      this.memoryStream = [];
-      //this.promptCount = 1; //Tracks total prompt count
-      this.milestones = milestonesData[genre][length]; // Set milestones based on genre and length
-      this.endings = endingsData[genre]; // Set possible endings based on genre
-      this.introduction = introductionData[genre]; // Set introduction based on genre
-      this.goal = goalsData[genre]; // Set introduction based on genre
-      this.nextMilestone = this.milestones[1]; //skips first milestone as it's part of the introduction
-      this.milestoneIndex = 1;
-      this.promptsSinceLastMilestone = 1; // Tracks prompts between milestones
-      this.storyPart = this.introduction;
-      this.isEnd = false;
+    constructor(story) {
+        const genre = story.genre;
+        const length = story.length;
 
-      this.HF_ACCESS_TOKEN = process.env.HF_ACCESS_TOKEN;
-      this.inference = new HfInference(HF_ACCESS_TOKEN);
+        this.milestones = milestonesData[genre][length]; // Set milestones based on genre and length
+        this.endings = endingsData[genre]; // Set possible endings based on genre
+        this.introduction = introductionData[genre]; // Set introduction based on genre
+        this.goal = goalsData[genre]; // Set introduction based on genre
+
+        this.inference = new HfInference(HF_ACCESS_TOKEN);
+    }
+
+    // Will return an intro if it is a new story, otherwise returns nothing
+    async initialize() {
+        const story = await Storage.getCurrentStory();
+
+        if (story.responses.length <= 0) { // if the story is new, insert the introduction
+            await Storage.addStoryResponse(Storage.StoryResponseType.NARRATOR, this.introduction);
+            return this.introduction;
+        }
     }
 
     async generateText(prompt){
@@ -83,13 +92,13 @@ export class StoryGenerator {
         }
     }
 
-    async memoryRetrieval({userResponse, sentiment}){ //retrieves relevant parts of the memory stream
+    async memoryRetrieval({userResponse, sentiment, memoryStream}){ //retrieves relevant parts of the memory stream
         console.log('Retrieving relevant parts of the memory stream...');
         const prompt = `You are tasked with evaluating the memory stream from the protagonist's journey. Review the user's latest response to the story and their emotional sentiment (e.g., excited, fearful, curious). 
         Based on their response and emotions, select which past observations or actions from the memory stream are most likely to be affected or revisited. 
         Then, explain how these observations should evolve or change in light of the user's response.
         
-        **Memory Stream**: ${this.memoryStream}
+        **Memory Stream**: ${memoryStream}
         
         **User's Response**: ${userResponse}
         
@@ -102,13 +111,27 @@ export class StoryGenerator {
         return await this.generateText(prompt);
     }
 
-    async continueStory({context, userResponse, sentiment}){ //Generate next part of the story
+    async continueStory({ userResponse, sentiment}){ //Generate next part of the story
+        // Store the user response
+        await Storage.addStoryResponse(Storage.StoryResponseType.USER, userResponse);
+        
+        const context = this.memoryRetrieval({
+            userResponse,
+            sentiment
+        });
+        
         console.log('Continuing the story...');
         let prompt = ``;
+	let story = await Storage.getCurrentStory();
+	const nextMilestone = this.milestones[story.milestoneIndex];
 
-        if (this.milestoneIndex == this.milestones.length - 1) { //end the story with a relevant ending
+	if (story === null) {
+	    console.error("[storyManager::continueStory] Called without a current story set!");
+	    return;
+	}
+
+        if (story.milestoneIndex == this.milestones.length - 1) { //end the story with a relevant ending
             console.log('Ending the story...');
-            this.isEnd = true;
             prompt = `You are creating an ending for an interactive "choose your own adventure" story and must generate **one concise paragraph** in response to the user's recent decision.
 
             In your response, **do not** include any additional instructions or explanations; only include the story content. 
@@ -136,7 +159,7 @@ export class StoryGenerator {
             `;
         }
 
-        if(this.promptsSinceLastMilestone < 1){ //standard prompt - can change the threshold (1 standard prompt between every milestone prompt)
+        if(story.promptsSinceLastMilestone < 1){ //standard prompt - can change the threshold (1 standard prompt between every milestone prompt)
             console.log('Continuing the story with a standard prompt...');
             prompt = `You are continuing an interactive "choose your own adventure" story and must generate **one concise paragraph** in response to the user's recent decision.
 
@@ -162,10 +185,11 @@ export class StoryGenerator {
             **Example Output**:
             "[Story]You enthusiastically decided to enter the glowing portal. Stepping through, you find yourself in a shimmering, otherworldly landscape. The sky is a swirl of colors, and strange, floating islands drift by. You notice two paths: one leads to a crystal-clear lake with a mysterious island in the center, and the other to a towering, ancient tree with a ladder leading up to its branches. What do you choose to do next?[/Story]"
             `;
-            this.promptsSinceLastMilestone++;
+	    
+            story.promptsSinceLastMilestone++;
         } else { //push for the story to reach the next milestone
             console.log('Continuing the story with a milestone prompt...');
-            console.log('Milestone:', this.nextMilestone);
+            console.log('Milestone:', nextMilestone);
             prompt = `You are continuing an interactive "choose your own adventure" story and must generate **one concise paragraph** in response to the user's recent decision.
 
             In your response, **do not** include any additional instructions or explanations; only include the story content. 
@@ -188,24 +212,34 @@ export class StoryGenerator {
             
             **Emotional State**: ${sentiment}
             
-            **Milestone**: ${this.nextMilestone}
+            **Milestone**: ${nextMilestone}
             
             **Example Output**:
             "[Story]You enthusiastically decided to enter the glowing portal. Stepping through, you find yourself in a shimmering, otherworldly landscape. The sky is a swirl of colors, and strange, floating islands drift by. You notice two paths: one leads to a crystal-clear lake with a mysterious island in the center, and the other to a towering, ancient tree with a ladder leading up to its branches. What do you choose to do next?[/Story]"
             `;
-            this.promptsSinceLastMilestone = 0;
-            this.milestoneIndex++;
-            this.nextMilestone = this.milestones[this.milestoneIndex]; //update the next milestone
-            console.log('Next milestone updated to -', this.nextMilestone);
-
+            story.promptsSinceLastMilestone = 0;
+            story.milestoneIndex++;
         }
-        //this.promptCount++;
-        let result = await this.generateParsedText(prompt);
-        this.storyPart = result;
+        // update all the indexes
+        await Storage.setStory(story.id, story);
+	
+        const result = await this.generateParsedText(prompt);
+        const memoryStreamFragments = await this.populateMemoryStream(result);
+
+        const responseId = await Storage.addStoryResponse(Storage.StoryResponseType.NARRATOR, result);
+
+        for(const fragment of memoryStreamFragments) {
+            await Storage.addMemoryStreamFragment(
+                responseId,
+                fragment.observation,
+                fragment.location
+            );
+        }
+        
         return result;
     }
 
-    async populateMemoryStream(){ //creates observations based on the most recent part of the story (NOTE - there still needs to be a way to add these to the memory stream)
+    async populateMemoryStream(storyPart) { //creates observations based on the most recent part of the story (NOTE - there still needs to be a way to add these to the memory stream)
         console.log('Populating memory stream with observations based on the story excerpt');
 
         const prompt = `You are an assistant tasked with creating a **memory stream**. Only include observations that have a direct impact on the user’s current decisions, actions, or future planning. Avoid repetitive or trivial details like smells or minor actions unless they directly affect the story's progression.
@@ -223,11 +257,10 @@ export class StoryGenerator {
             "observation": "<What the user observes or does in this part of the story>",
             "location": "<Location in the story>"
           },
-          ...
         ]
         
         Based on the following story excerpt, generate the key memory stream:        
-        "${this.storyPart}"
+        "${storyPart}"
         `;
         let result = await this.generateText(prompt);
 
@@ -241,9 +274,6 @@ export class StoryGenerator {
         try {
             let parsedData = JSON.parse(jsonString);
             console.log('Parsed Data:', parsedData);
-
-                // Add each observation to the memoryStream using push
-            parsedData.forEach(obs => this.memoryStream.push(obs));
             return parsedData;
 
         } catch (error) {
