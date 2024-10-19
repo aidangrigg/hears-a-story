@@ -39,6 +39,7 @@ type Story = {
   memoryStream: MemoryStreamFragment[];
   milestoneIndex: number;
   promptsSinceLastMilestone: number;
+  isFinished: boolean;
 }
 
 const CURRENT_STORY_KEY = "current_story";
@@ -93,7 +94,8 @@ export async function createStory(genre: StoryGenre, length: StoryLength, isCurr
     responses: [],
     memoryStream: [],
     milestoneIndex: 1,
-    promptsSinceLastMilestone: 1
+    promptsSinceLastMilestone: 1,
+    isFinished: false
   };
 
   await AsyncStorage.setItem(storyKey(story.id), JSON.stringify(story));

@@ -14,7 +14,6 @@ import * as Storage from "./storage";
 import { HfInference } from "@huggingface/inference";
 import { HF_ACCESS_TOKEN } from './codes.js'; //add a codes.js file in the same directory with the access token
 
-// TODO ending handling has to be set up (not sure if it should be here or on the frontend)
 export class StoryGenerator {
     constructor(story) {
         const genre = story.genre;
@@ -130,6 +129,10 @@ export class StoryGenerator {
 	    return;
 	}
 
+        if (story.isFinished) {
+            return "";
+        }
+
         if (story.milestoneIndex == this.milestones.length - 1) { //end the story with a relevant ending
             console.log('Ending the story...');
             prompt = `You are creating an ending for an interactive "choose your own adventure" story and must generate **one concise paragraph** in response to the user's recent decision.
@@ -157,9 +160,8 @@ export class StoryGenerator {
             **Example Output**:
             "[Story]With bated breath, you and your crew execute the heist with precision, every move planned down to the last detail. As the final alarm remains silent, a wave of exhilaration washes over you. The tension that gripped your team moments before dissolves into laughter and cheers as you gather in a hidden location to celebrate your victory. Glancing at your teammates, you can hardly believe the audacity of what you've just pulled off. The thrill of success courses through your veins, and as you raise your glass, you know this will be a tale for the ages. What will you do next with your newfound fortune? ~END~[/Story]
             `;
-        }
-
-        if(story.promptsSinceLastMilestone < 1){ //standard prompt - can change the threshold (1 standard prompt between every milestone prompt)
+            story.isFinished = true;
+        } else if(story.promptsSinceLastMilestone < 1) { //standard prompt - can change the threshold (1 standard prompt between every milestone prompt)
             console.log('Continuing the story with a standard prompt...');
             prompt = `You are continuing an interactive "choose your own adventure" story and must generate **one concise paragraph** in response to the user's recent decision.
 
@@ -227,6 +229,11 @@ export class StoryGenerator {
         const memoryStreamFragments = await this.populateMemoryStream(result);
 
         const responseId = await Storage.addStoryResponse(Storage.StoryResponseType.NARRATOR, result);
+
+        // if we fail to parse the memory stream, ignore it and keep the story moving.
+        if (!memoryStreamFragments) {
+            return result;
+        }
 
         for(const fragment of memoryStreamFragments) {
             await Storage.addMemoryStreamFragment(
