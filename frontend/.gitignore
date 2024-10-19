@@ -12,6 +12,11 @@ web-build/
 codes.js
 .env
 
+.env
+.envrc
+
+.direnv
+
 # macOS
 .DS_Store
 
