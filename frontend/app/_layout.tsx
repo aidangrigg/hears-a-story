@@ -1,37 +1,41 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+// import { Stack } from "expo-router";
+import React, { useContext, useState} from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import { View, Text, Button, StatusBar } from "react-native";
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+// Context API
+import { LibraryProvider } from '@/context/LibraryContext';
+
+// App Pages
+import Index from './index';
+import Loading from './loading';
+import CreateStory from './CreateStory';
+import StoryPage from './storyPage';
+
+// Stylesheet
+import Styles from './Styles';
+
+const Stack = createNativeStackNavigator();
+const Drawer = createDrawerNavigator();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
-
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </ThemeProvider>
+    
+    <LibraryProvider>
+      {/* <StatusBar barStyle="light-content" backgroundColor="#6a51ae" />  */}
+      <NavigationContainer independent={true} >
+        <Stack.Navigator initialRouteName="Library" screenOptions={{ headerShown: false }} >
+          <Stack.Screen name="Loading" component={Loading} />
+          <Stack.Screen name="Library" component={Index}/>
+          <Stack.Screen name="Create Story" component={CreateStory} />
+          <Stack.Screen name="Story Page" component={StoryPage} />
+        
+        </Stack.Navigator>
+      </NavigationContainer>
+    </LibraryProvider>
+
   );
 }

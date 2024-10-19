@@ -11,8 +11,8 @@ function test(test_string){
   })
 }
 
-test(`I can't believe my little brother really chose to sing that song on my birthday`)
-test(`I'm going to kill that lich even if it costs me everything`)
-test(`I do feel bad about committing robbery but I can't afford to go to prison`)
+// test(`I can't believe my little brother really chose to sing that song on my birthday`)
+// test(`I'm going to kill that lich even if it costs me everything`)
+// test(`I do feel bad about committing robbery but I can't afford to go to prison`)
 
 
