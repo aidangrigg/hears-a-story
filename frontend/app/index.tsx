@@ -1,65 +1,101 @@
+import { useEffect, useState } from "react";
+import { View, Text, FlatList, TextInput, Button } from "react-native";
+import { StoryGenerator } from "./story/storyManager";
+import * as Storage from "./story/storage";
 
-import React, { useState, useContext } from "react";
-import { Text, View, Image, Button, ScrollView, Alert, Pressable, StatusBar, StyleSheet} from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import Feather from '@expo/vector-icons/Feather';
+export default function StoryGenTest() {
+    let [storyGen, setStoryGen] = useState<StoryGenerator | null>(null);
+    let [loading, setLoading] = useState(true);
+    let [responses, setResponses] = useState<string[]>([]);
+    let [inputText, setInputText] = useState("");
+
+    function narratorResponse(s: string) {
+        return `Narrator: ${s}`;
+    }
+
+    function userResponse(s: string) {
+        return `User: ${s}`;
+    }
+
+    function onSubmit() {
+        let res = inputText;
+        setResponses([...responses, userResponse(res)]);
+
+        if (storyGen === null) {
+            return;
+        }
+
+        storyGen.continueStory({ sentiment: "happy", userResponse: inputText })
+            .then((narResponse) => {
+                if (narResponse === undefined) {
+                    return;
+                }
+
+                setResponses([...responses, userResponse(res), narratorResponse(narResponse)]);
+            });
+    }
 
 
-import { LibraryContext } from "@/context/LibraryContext";
+    useEffect(() => {
+        const prepStorage = async () => {
+            let story = await Storage.getCurrentStory();
 
+            if (story === null) {
+                console.error("something bad happened");
+                return;
+            }
 
-import { Header } from "@/components/header";
+            let storyGen = new StoryGenerator(story);
+            let intro = await storyGen.initialize();
 
-import Story from "@/components/storyBrief";
+            if (intro) {
+                setResponses([narratorResponse(intro)]);
+            } else {
+                let something = story.responses.map((res) => {
+                    if (res.type === Storage.StoryResponseType.NARRATOR) {
+                        return narratorResponse(res.text);
+                    } else if (res.type === Storage.StoryResponseType.USER) {
+                        return userResponse(res.text);
+                    }
+                    console.error("something terrible happened");
+                    return "something terrible happened";
+                })
 
+                setResponses(something);
+            }
 
-// import Styles from "./Styles";
+            setLoading(false);
+            setStoryGen(storyGen);
+        };
 
-export default function Index() {
-  const navigation: any = useNavigation();
-  const { library } = useContext(LibraryContext)
-  console.log(library)
-  return (
-     <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#192637",
-      }}
-    >
-      <Header title="Library"></Header>
-      
-      <ScrollView 
-        style={{ width: "100%"}}>
-        {library.map((story) => <Story storyProps={story} key={story?.key}></Story>)}
-      </ScrollView>
-      
-      <View>
-        <Feather.Button
-          style={{margin: 30, borderColor: "white", borderWidth: 5, borderRadius: 50, width: "80%", fontFamily: "Roboto"}}
-          name="plus-circle"
-          size={50}
-          backgroundColor={"#192637"}
-          borderRadius={100}
-          onPress={() => {
-            navigation.navigate("Create Story")
-          }}> New Story
-        </Feather.Button>
-      </View>
-    </View> 
-    
-  );
+        prepStorage().catch(console.error);
+    }, []);
+
+    let responseTextBoxes = loading ?
+        <Text>Loading</Text> :
+        <FlatList
+            data={responses}
+            renderItem={({ item }) => <Text style={{ color: "white" }}>{item}</Text>}
+        />;
+
+    return (
+        <View
+            style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+                backgroundColor: "#192637",
+            }}
+        >
+            {responseTextBoxes}
+            <TextInput
+                onChangeText={setInputText}
+                value={inputText}
+            />
+            <Button
+                title="Submit"
+                onPress={onSubmit}
+            />
+        </View>
+    );
 }
-
-const styles = StyleSheet.create({
-  buttonContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 300,
-    width: "100%",
-    backgroundColor: "red"
-  },
-});
-
