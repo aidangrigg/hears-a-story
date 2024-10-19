@@ -2,16 +2,16 @@
 
 // Description: This file contains the logic for story generation.
 
-import endingsData from './endings.json' assert { type: 'json' };
-import milestonesData from './milestones.json' assert { type: 'json' };
-import introductionData from './introductions.json' assert { type: 'json' };
-import goalsData from './goals.json' assert { type: 'json' };
-import { createInterface } from 'readline'; //for testing with user input
+import endingsData from './endings.json' with { type: 'json' };
+import milestonesData from './milestones.json' with { type: 'json' };
+import introductionData from './introductions.json' with { type: 'json' };
+import goalsData from './goals.json' with { type: 'json' };
+// import { createInterface } from 'readline'; //for testing with user input
 
 import { HfInference } from "@huggingface/inference";
 import { HF_ACCESS_TOKEN } from './codes.js'; //add a codes.js file in the same directory with the access token
 
-class StoryGenerator {
+export class StoryGenerator {
     constructor(genre, length) {
       this.memoryStream = [];
       //this.promptCount = 1; //Tracks total prompt count
@@ -257,48 +257,47 @@ class StoryGenerator {
         // Remove any trailing commas before closing brackets
         return jsonString.replace(/,(\s*[\]}])/g, '$1');
     }
-}  
-
-
-//EXAMPLE
-//Story Generation Process: intro -> loop(populateMemoryStream -> User Response -> memoryRetrieval -> continueStory)
-const shortCrimeStory = new StoryGenerator('crime', 'short');
-let intro = shortCrimeStory.introduction;
-console.log('Introduction:', intro);
-await shortCrimeStory.populateMemoryStream(intro);
-
-const rl = createInterface({ //for testing with user input
-    input: process.stdin,
-    output: process.stdout
-});
-
-let promptCounter = 0;
-const userSentiments = ['excited', 'curious', 'sad', 'confident', 'suspicious', 'nervous', 'surprised', 'excited'];
-
-function askQuestion() {
-    rl.question('User Decision: ', async (userDecision) => {
-        let context = await shortCrimeStory.memoryRetrieval({
-            userResponse: userDecision, 
-            sentiment: userSentiments[promptCounter]
-        });
-
-        await shortCrimeStory.continueStory({
-            context: context, 
-            userResponse: userDecision, 
-            sentiment: userSentiments[promptCounter]
-        });
-
-        await shortCrimeStory.populateMemoryStream();
-
-        promptCounter++;
-
-        if (promptCounter < userSentiments.length) {
-            askQuestion();
-        } else {
-            rl.close(); // Close the interface after all questions are asked
-        }
-    });
 }
 
-// Start the process by asking the first question
-askQuestion();
+// //EXAMPLE
+// //Story Generation Process: intro -> loop(populateMemoryStream -> User Response -> memoryRetrieval -> continueStory)
+// const shortCrimeStory = new StoryGenerator('crime', 'short');
+// let intro = shortCrimeStory.introduction;
+// console.log('Introduction:', intro);
+// await shortCrimeStory.populateMemoryStream(intro);
+
+// const rl = createInterface({ //for testing with user input
+//     input: process.stdin,
+//     output: process.stdout
+// });
+
+// let promptCounter = 0;
+// const userSentiments = ['excited', 'curious', 'sad', 'confident', 'suspicious', 'nervous', 'surprised', 'excited'];
+
+// function askQuestion() {
+//     rl.question('User Decision: ', async (userDecision) => {
+//         let context = await shortCrimeStory.memoryRetrieval({
+//             userResponse: userDecision, 
+//             sentiment: userSentiments[promptCounter]
+//         });
+
+//         await shortCrimeStory.continueStory({
+//             context: context, 
+//             userResponse: userDecision, 
+//             sentiment: userSentiments[promptCounter]
+//         });
+
+//         await shortCrimeStory.populateMemoryStream();
+
+//         promptCounter++;
+
+//         if (promptCounter < userSentiments.length) {
+//             askQuestion();
+//         } else {
+//             rl.close(); // Close the interface after all questions are asked
+//         }
+//     });
+// }
+
+// // Start the process by asking the first question
+// askQuestion();
