@@ -18,16 +18,16 @@ type MemoryStreamFragment = {
 }
 
 export enum StoryGenre {
-  CRIME,
-  SCIFI,
-  FANTASY,
-  MYSTERY,
+  CRIME = "crime",
+  SCIFI = "sci-fi",
+  FANTASY = "fantasy",
+  MYSTERY = "mystery",
 }
 
 export enum StoryLength {
-  SHORT,
-  MEDIUM,
-  LONG
+  SHORT = "short",
+  MEDIUM = "medium",
+  LONG = "long"
 }
 
 type Story = {
@@ -37,6 +37,8 @@ type Story = {
   length: StoryLength;
   responses: StoryResponse[];
   memoryStream: MemoryStreamFragment[];
+  milestoneIndex: number;
+  promptsSinceLastMilestone: number;
 }
 
 const CURRENT_STORY_KEY = "current_story";
@@ -80,7 +82,7 @@ export async function getAllStories(): Promise<Story[]> {
 /**
  * Creates a new story based on passed in parameters. If isCurrent is true, updates the current story
  * to the newly created story.
- * Returns the created story.
+ * Returns the created story id.
  */
 export async function createStory(genre: StoryGenre, length: StoryLength, isCurrent = true): Promise<string> {
   let story: Story = {
@@ -89,7 +91,9 @@ export async function createStory(genre: StoryGenre, length: StoryLength, isCurr
     genre: genre,
     length: length,
     responses: [],
-    memoryStream: []
+    memoryStream: [],
+    milestoneIndex: 1,
+    promptsSinceLastMilestone: 1
   };
 
   await AsyncStorage.setItem(storyKey(story.id), JSON.stringify(story));
@@ -101,7 +105,7 @@ export async function createStory(genre: StoryGenre, length: StoryLength, isCurr
   return story.id;
 }
 
-async function setStory(id: string, story: Story) {
+export async function setStory(id: string, story: Story) {
   await AsyncStorage.setItem(storyKey(id), JSON.stringify(story));
 }
 
