@@ -9,7 +9,6 @@ import { Header } from "@/components/header";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 interface MicIconProps {
-    
     listening: boolean;
     micBtnEvent: any;
 }
@@ -34,7 +33,7 @@ export default function StoryPage() {
     const route: any = useRoute();
     const { storyProps } = route.params;
 
-    const [responses, setResponses] = useState<Response[]>([new NarratorResponse("")]);
+    const [responses, setResponses] = useState<Response[]>([new NarratorResponse(""), new UserResponse("")]);
     const [recognizing, setRecognizing] = useState(false);
     const [transcript, setTranscript] = useState("");
     let [timeoutID] = useState(Number)    
@@ -51,7 +50,7 @@ export default function StoryPage() {
  
     //Place function to play/pause text to speech here
     const playBtnEvent = (id: string) => {
-        handleSTT();
+        
         const updatedResponses = responses.map(response => {
             if (response.id === id) {
                 const newResponse = response;
@@ -70,14 +69,20 @@ export default function StoryPage() {
         setResponses(updatedResponses);
     }
 
-    const micBtnEvent = () => {
-        if(listening){
-            setlistening(false);
+    // const micBtnEvent = () => {
+    //     if(listening){
+    //         setlistening(false);
 
-        } else{
-            setlistening(true);
-        }
+    //     } else{
+    //         setlistening(true);
+    //     }
         
+    // }
+
+    const record = () => {
+        handleSTT();
+
+
     }
 
     const submitResponseBtnEvent = (id: string) => {
@@ -109,22 +114,12 @@ export default function StoryPage() {
         setResponses(updatedResponses);
 
     }
-
-    //PLace function to save responses to storage here
+    
     const backBtnEvent = () => {
         navigation.goBack();
     }
 
-    // const useSettingsBtnEvent = () => {
-    //     //why doesnt this work?!?!
-    //    // console.log(createResponse("", 0));
 
-    //     //const response = createResponse("", 0);
-    //     // const newResponses = [...responses, new NarratorResponse("")];
-    //     setResponses([...responses, createResponse("", 0)]);
-
-
-    // }
 
     const createResponse = (text: string, type: number) => {
         let response: Response;
@@ -201,8 +196,8 @@ export default function StoryPage() {
 
 
             {/* <Feather style={styles.settingsIcon} name="settings" size={30} color="white" backgroundColor="transparent" onPress={() => useSettingsBtnEvent()} /> */}
-            <MicIcon listening={listening} micBtnEvent={() => micBtnEvent()} />
-            <Feather style={styles.micIcon} name="mic" size={30} color="white" backgroundColor="transparent" onPress={micBtnEvent} />
+            {/* <MicIcon listening={listening} micBtnEvent={() => micBtnEvent()} /> */}
+            {/* <Feather style={styles.micIcon} name="mic" size={30} color="white" backgroundColor="transparent" onPress={micBtnEvent} /> */}
             <Feather style={styles.saveIcon} name="arrow-left-circle" size={30} color="white" backgroundColor="transparent" onPress={backBtnEvent} />
 
             <ScrollView style={styles.scrollStyle} >
@@ -214,7 +209,8 @@ export default function StoryPage() {
                             setInput={setInputText}
                             input={inputText}
                             submitInput={() => submitResponseBtnEvent(response.id)}
-                            editInput={() => editInput(response.id)} />
+                            editInput={() => editInput(response.id)}
+                            micBtnEvent={() => record()}  />
 
                     };
                     return <NarratorTextbox
