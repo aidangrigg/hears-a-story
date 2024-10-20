@@ -112,7 +112,7 @@ export default function StoryPage() {
 
     //PLace function to save responses to storage here
     const backBtnEvent = () => {
-        navigation.navigate("Index");
+        navigation.goBack();
     }
 
     // const useSettingsBtnEvent = () => {

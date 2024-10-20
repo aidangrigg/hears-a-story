@@ -7,6 +7,7 @@ import milestonesData from './milestones.json' with { type: 'json' };
 import introductionData from './introductions.json' with { type: 'json' };
 import goalsData from './goals.json' with { type: 'json' };
 
+import { StoryResponseType } from "@/types/Story";
 import * as Storage from "./storage";
 
 // import { createInterface } from 'readline'; //for testing with user input
@@ -32,7 +33,7 @@ export class StoryGenerator {
         const story = await Storage.getCurrentStory();
 
         if (story.responses.length <= 0) { // if the story is new, insert the introduction
-            await Storage.addStoryResponse(Storage.StoryResponseType.NARRATOR, this.introduction);
+            await Storage.addStoryResponse(StoryResponseType.NARRATOR, this.introduction);
             return this.introduction;
         }
     }
@@ -112,7 +113,7 @@ export class StoryGenerator {
 
     async continueStory({ userResponse, sentiment}){ //Generate next part of the story
         // Store the user response
-        await Storage.addStoryResponse(Storage.StoryResponseType.USER, userResponse);
+        await Storage.addStoryResponse(StoryResponseType.USER, userResponse);
         
         const context = this.memoryRetrieval({
             userResponse,
@@ -228,7 +229,7 @@ export class StoryGenerator {
         const result = await this.generateParsedText(prompt);
         const memoryStreamFragments = await this.populateMemoryStream(result);
 
-        const responseId = await Storage.addStoryResponse(Storage.StoryResponseType.NARRATOR, result);
+        const responseId = await Storage.addStoryResponse(StoryResponseType.NARRATOR, result);
 
         // if we fail to parse the memory stream, ignore it and keep the story moving.
         if (!memoryStreamFragments) {

@@ -1,46 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-export enum StoryResponseType {
-  NARRATOR,
-  USER
-}
-
-type StoryResponse = {
-  response_id: string;
-  type: StoryResponseType;
-  text: string;
-}
-
-type MemoryStreamFragment = {
-  response_id: string;
-  observation: string;
-  location: string;
-}
-
-export enum StoryGenre {
-  CRIME = "crime",
-  SCIFI = "sci-fi",
-  FANTASY = "fantasy",
-  MYSTERY = "mystery",
-}
-
-export enum StoryLength {
-  SHORT = "short",
-  MEDIUM = "medium",
-  LONG = "long"
-}
-
-type Story = {
-  id: string;
-  dateCreated: Date;
-  genre: StoryGenre;
-  length: StoryLength;
-  responses: StoryResponse[];
-  memoryStream: MemoryStreamFragment[];
-  milestoneIndex: number;
-  promptsSinceLastMilestone: number;
-  isFinished: boolean;
-}
+import type { Story, StoryGenre, StoryLength, StoryResponseType, } from '@/types/Story';
 
 const CURRENT_STORY_KEY = "current_story";
 
@@ -85,7 +44,7 @@ export async function getAllStories(): Promise<Story[]> {
  * to the newly created story.
  * Returns the created story id.
  */
-export async function createStory(genre: StoryGenre, length: StoryLength, isCurrent = true): Promise<string> {
+export async function createStory(title: string, genre: StoryGenre, length: StoryLength, isCurrent = true, allowAdultContent = false): Promise<string> {
   let story: Story = {
     id: crypto.randomUUID(),
     dateCreated: new Date(),
@@ -95,7 +54,9 @@ export async function createStory(genre: StoryGenre, length: StoryLength, isCurr
     memoryStream: [],
     milestoneIndex: 1,
     promptsSinceLastMilestone: 1,
-    isFinished: false
+    isFinished: false,
+    allowAdultContent,
+    title
   };
 
   await AsyncStorage.setItem(storyKey(story.id), JSON.stringify(story));

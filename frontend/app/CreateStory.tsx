@@ -7,25 +7,21 @@ import { RadioButton } from "react-native-paper";
 
 import { Header } from "@/components/header";
 
-import { Story } from "@/types/Story";
+import { Story, StoryGenre, StoryLength } from "@/types/Story";
 
 import { LibraryContext } from "@/context/LibraryContext";
 import { rgbaColor } from "react-native-reanimated/lib/typescript/reanimated2/Colors";
+import { capitalize } from "@/utils/formatting";
 
 export default function CreateStory() {
     const navigation: any = useNavigation();
 
     const [title, onChangeName] = React.useState('');
-    const [hours, onChangeHours] = React.useState('');
-    const [minutes, onChangeMinutes] = React.useState('');
 
     const { addStory } = useContext(LibraryContext);
-    const { library } = useContext(LibraryContext);
-    const lastBook = library.at(-1);
-    const newKey = lastBook ? lastBook.key + 1 : 0;
 
-    const [newGenre, setGenre] = React.useState('crime');
-    const [newDuration, setDuration] = React.useState('medium');
+    const [newGenre, setGenre] = React.useState(StoryGenre.CRIME);
+    const [newDuration, setDuration] = React.useState(StoryLength.SHORT);
     const [contentFilter, setContentFilter] = React.useState(false);
     
     return (
@@ -55,35 +51,22 @@ export default function CreateStory() {
                         style={styles.heading}>Story Duration</Text>
                     <Text
                         style={styles.detail}>Enter a duration for your new story</Text>
-                        <RadioButton.Group onValueChange={value => setDuration(value)} value={newDuration}>
-                            <RadioButton.Item
-                                position="leading"
-                                mode="android"
-                                label="Short"
-                                color="white"
-                                value="short"
-                                status="unchecked"
-                                labelStyle={{color: "white", marginRight: "70%"}}
-                            ></RadioButton.Item>
-                            <RadioButton.Item
-                                position="leading"
-                                mode="android"
-                                label="Medium"
-                                color="white"
-                                value="medium"
-                                status="unchecked"
-                                labelStyle={{color: "white",  marginRight: "63%"}}
-                            ></RadioButton.Item>
-                            <RadioButton.Item
-                                position="leading"
-                                mode="android"
-                                label="Long"
-                                color="white"
-                                value="long"
-                                status="unchecked"
-                                labelStyle={{color: "white", marginRight: "71%"}}
-                            ></RadioButton.Item>
-                        </RadioButton.Group>
+                    <RadioButton.Group onValueChange={value => setDuration(value as StoryLength)} value={newDuration}>
+                        {Object.keys(StoryLength).map((length) => {
+                            return (
+                                <RadioButton.Item
+                                    key={length}
+                                    position="leading"
+                                    mode="android"
+                                    label={capitalize(length)}
+                                    color="white"
+                                    value={length}
+                                    status="unchecked"
+                                    labelStyle={{ color: "white", textAlign: "left"}}
+                                ></RadioButton.Item>
+                            );
+                        })}
+                    </RadioButton.Group>
                     {/* <View style={{flexDirection: "row", gap: 15, justifyContent: "flex-start", alignItems: "center", padding: 0, marginTop: 10}}>
                         <TextInput
                             // placeholder="Enter a title"
@@ -108,43 +91,21 @@ export default function CreateStory() {
                         style={styles.heading}>Genre</Text>
                     <Text
                         style={styles.detail}>Choose the genre(s) for your story</Text>
-                        <RadioButton.Group onValueChange={value => setGenre(value)} value={newGenre}>
-                            <RadioButton.Item
-                                position="leading"
-                                mode="android"
-                                label="Crime"
-                                color="white"
-                                value="crime"
-                                status="unchecked"
-                                labelStyle={{color: "white", marginRight: "70%"}}
-                            ></RadioButton.Item>
-                            <RadioButton.Item
-                                position="leading"
-                                mode="android"
-                                label="Sci-Fi"
-                                color="white"
-                                value="sci-fi"
-                                status="unchecked"
-                                labelStyle={{color: "white",  marginRight: "70%"}}
-                            ></RadioButton.Item>
-                            <RadioButton.Item
-                                position="leading"
-                                mode="android"
-                                label="Fantasy"
-                                color="white"
-                                value="fantasy"
-                                status="unchecked"
-                                labelStyle={{color: "white", marginRight: "65%"}}
-                            ></RadioButton.Item>
-                            <RadioButton.Item
-                                position="leading"
-                                mode="android"
-                                label="Mystery"
-                                color="white"
-                                value="mystery"
-                                status="unchecked"
-                                labelStyle={{color: "white", marginRight: "64.5%"}}
-                            ></RadioButton.Item>
+                  <RadioButton.Group onValueChange={value => setGenre(value as StoryGenre)} value={newGenre}>
+                      {Object.keys(StoryGenre).map((genre) => {
+                          return (
+                              <RadioButton.Item
+                                  key={genre}
+                                  position="leading"
+                                  mode="android"
+                                  label={capitalize(genre)}
+                                  color="white"
+                                  value={genre}
+                                  status="unchecked"
+                                  labelStyle={{color: "white", textAlign: "left"}}
+                              ></RadioButton.Item>
+                          );
+                      })}
                         </RadioButton.Group>
                 </View>
                 <View>
@@ -152,7 +113,7 @@ export default function CreateStory() {
                         style={styles.heading}>Content Filter</Text>
                     <Text
                         style={styles.detail}>Allow for adult (18+) content</Text>    
-                    <RadioButton.Group onValueChange={value => setContentFilter(value === 'true' ? true : false)} value={contentFilter === true ? 'true' : 'false'}>
+                        <RadioButton.Group onValueChange={value => setContentFilter(value === 'true' ? true : false)} value={contentFilter === true ? 'true' : 'false'}>
                             <RadioButton.Item
                                 position="leading"
                                 mode="android"
@@ -182,8 +143,7 @@ export default function CreateStory() {
                     backgroundColor={"#192637"}
                     borderRadius={100}
                     onPress={() => {
-                        const newBook: Story = {key: newKey, title: title, status: "Ongoing", duration: newDuration, genre: newGenre, allowAdultContent: contentFilter}
-                        addStory(newBook)
+                        addStory(title, newGenre, newDuration, contentFilter)
 
                         navigation.goBack();
                     }}>
