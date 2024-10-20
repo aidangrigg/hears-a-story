@@ -9,7 +9,26 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
+import Feather from '@expo/vector-icons/Feather';
 
+interface MicIconProps {
+    
+    listening: boolean;
+    micBtnEvent: any;
+}
+
+export function MicIcon({ listening, micBtnEvent}: MicIconProps) {
+    if(listening){
+        return (
+            <Feather style={styles.micIcon} name="mic" size={30} color="white" backgroundColor="transparent" onPress={micBtnEvent} />
+            
+        );
+
+    }
+    return (
+        <Feather style={styles.micIcon} name="mic-off" size={30} color="white" backgroundColor="transparent" onPress={micBtnEvent} />
+    );
+};
 
 export class Response {
     id: string;
@@ -105,11 +124,12 @@ interface UserTextboxProps {
     input: string;
     setInput: any;
     editInput: any;
+    micBtnEvent: any;
 
 
 }
 
-export function UserTextbox({ response, submitInput, input, setInput, editInput }: UserTextboxProps) {
+export function UserTextbox({ response, submitInput, input, setInput, editInput, micBtnEvent }: UserTextboxProps) {
     if (response.mostCurrent == true && response.editing == true) {
         return (
             <View style={styles.userBox}>
@@ -118,12 +138,14 @@ export function UserTextbox({ response, submitInput, input, setInput, editInput 
                     style={styles.inputBoxStyle}
                     onChangeText={text => setInput(text)}
                     value={input}
-                    placeholder="   Type response here..."
+                    placeholder="   Type response here or click mic to record"
                     multiline
                 />
-
-                <FontAwesome.Button style={styles.submitIcon} name="pencil" size={24} color="white" backgroundColor='transparent' onPress={submitInput}> Submit </FontAwesome.Button>
-            </View>
+                <View style={styles.NarratorMenuView}>
+                <FontAwesome.Button style={styles.submitIcon} name="pencil" size={24} color="white" backgroundColor='transparent' onPress={submitInput} />
+                <Feather.Button style={styles.micIcon} name="mic" size={24} color="white" backgroundColor='transparent' onPress={micBtnEvent} />
+                </View>
+                </View>
 
         )
     } else if (response.mostCurrent == true) {
@@ -253,7 +275,7 @@ const styles = StyleSheet.create({
     submitIcon: {
         borderWidth: 1,
         justifyContent: 'center',
-
+        width: '90%',
         borderRadius: 15,
         borderColor: "white",
 
@@ -263,6 +285,13 @@ const styles = StyleSheet.create({
         paddingTop: 25,
         color: "white",
 
+    },
+    micIcon: {
+        borderWidth: 1,
+        justifyContent: 'center',
+        width: '90%',
+        borderRadius: 15,
+        borderColor: "white",
     },
 
 
