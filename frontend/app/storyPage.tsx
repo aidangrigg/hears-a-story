@@ -10,31 +10,22 @@ import * as Storage from "./story/storage";
 import { StoryGenerator } from "./story/storyManager";
 import { StoryResponseType } from "@/types/Story";
 
-interface MicIconProps {
-    listening: boolean;
-    micBtnEvent: any;
-}
-
-export function MicIcon({ listening, micBtnEvent }: MicIconProps) {
-    return (
-        <Feather style={styles.micIcon} name={listening ? "mic" : "mic-off"} size={30} color="white" backgroundColor="transparent" onPress={micBtnEvent} />
-    );
-};
-
 export default function StoryPage() {
     const navigation: any = useNavigation();
     const route: any = useRoute();
     const { storyProps } = route.params;
 
-    const [responses, setResponses] = useState<Response[]>([new NarratorResponse("")]);
+    const [responses, setResponses] = useState<Response[]>([]);
     const [recognizing, setRecognizing] = useState(false);
-    const [transcript, setTranscript] = useState("");
-    let [timeoutID] = useState(Number)
 
-    const test = [new NarratorResponse(""), new UserResponse("")]
     const [inputText, setInputText] = useState("");
-    const [listening, setlistening] = useState(true);
     const [storyGen, setStoryGen] = useState<StoryGenerator | null>(null);
+
+    const [voiceInputIsOver, setVoiceInputIsOver] = useState(false);
+    const [currentResponseId, setCurrentResponseId] = useState("");
+
+    // const [transcript, setTranscript] = useState("");
+    const [timeoutId, setTimeoutId] = useState<number>();
 
     // Place function to play from beggining text to speech here
     const playfromStartBtnEvent = () => {
@@ -64,18 +55,78 @@ export default function StoryPage() {
             if (story.isFinished) {
                 setResponses(loadedResponses);
             } else {
-                setResponses([...loadedResponses, new UserResponse("", true)]);
+                const userResponse = new UserResponse("", true);
+                setCurrentResponseId(userResponse.id);
+                setResponses([...loadedResponses, userResponse]);
             }
-            
+
             setStoryGen(storyGen);
         };
-        
+
         prepStorage().catch(console.error);
     }, []);
 
+    useEffect(() => {
+        if (voiceInputIsOver) {
+            console.log("voice over, input: ", inputText);
+            setVoiceInputIsOver(false);
+            submitResponseBtnEvent(currentResponseId);
+        }
+    }, [voiceInputIsOver]);
+
+    const toggleRecording = () => {
+        if (recognizing) {
+            stopRecording();
+        } else {
+            startRecording();
+        }
+    };
+
+    const stopRecording = () => {
+        ExpoSpeechRecognitionModule.stop()
+    };
+
+    useSpeechRecognitionEvent("start", () => {
+        setRecognizing(true);
+    });
+
+    useSpeechRecognitionEvent("end", () => {
+        setRecognizing(false);
+        setVoiceInputIsOver(true);
+    });
+
+    useSpeechRecognitionEvent("result", (event: any) => {
+        setInputText(event.results[0]?.transcript);
+        window.clearTimeout(timeoutId);
+        if (event.isFinal) {
+            setTimeoutId(window.setTimeout(stopRecording, 4000));
+        }
+    });
+
+    useSpeechRecognitionEvent("error", (event: any) => {
+        console.log("error code:", event.error, "error messsage:", event.message);
+    });
+
+    const startRecording = async () => {
+        const result = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
+        if (!result.granted) {
+            console.warn("Permissions not granted", result);
+            return;
+        }
+        // Start speech recognition
+        ExpoSpeechRecognitionModule.start({
+            lang: "en-US",
+            interimResults: true,
+            maxAlternatives: 1,
+            continuous: true,
+            requiresOnDeviceRecognition: false,
+            addsPunctuation: true,
+            contextualStrings: ["Carlsen", "Nepomniachtchi", "Praggnanandhaa"],
+        });
+    };
+
     //Place function to play/pause text to speech here
     const playBtnEvent = (id: string) => {
-        handleSTT();
         const updatedResponses = responses.map(response => {
             if (response.id === id) {
                 const newResponse = response;
@@ -94,21 +145,10 @@ export default function StoryPage() {
         setResponses(updatedResponses);
     }
 
-    const micBtnEvent = () => {
-        if (listening) {
-            setlistening(false);
-
-        } else {
-            setlistening(true);
-        }
-
-    }
-
     const submitResponseBtnEvent = async (id: string) => {
-        const input = inputText;
         const updatedResponses = responses.map(response => {
             if (response.id === id) {
-                response.text = input;
+                response.text = inputText;
                 response.editing = false;
                 response.mostCurrent = false;
             }
@@ -117,15 +157,18 @@ export default function StoryPage() {
 
         let narratorResponse = await storyGen?.continueStory({
             sentiment: "",
-            userResponse: input
+            userResponse: inputText
         });
 
         if (narratorResponse === undefined) {
             console.error("Failed to generate next story part.");
             return;
         }
-        
-        setResponses([...updatedResponses, new NarratorResponse(narratorResponse), new UserResponse("")]);
+
+        const userResponse = new UserResponse("", true);
+        setCurrentResponseId(userResponse.id);
+        setInputText("");
+        setResponses([...updatedResponses, new NarratorResponse(narratorResponse), userResponse]);
     }
 
     const editInput = (id: string) => {
@@ -168,62 +211,11 @@ export default function StoryPage() {
         return response;
     }
 
-    const stopRecording = () => {
-        ExpoSpeechRecognitionModule.stop()
-    }
-
-    useSpeechRecognitionEvent("start", () => {
-        setRecognizing(true);
-        // console.log("STT Recording Started")
-    })
-    useSpeechRecognitionEvent("end", () => {
-        setRecognizing(false);
-        // console.log("STT END")
-        createResponse(transcript, 1)
-        // setTimeout(handleSTT, 2000)
-    })
-    useSpeechRecognitionEvent("result", (event: any) => {
-        // console.log("STT RESULT")
-        window.clearTimeout(timeoutID)
-        if (event.isFinal) {
-            setTranscript(transcript => {
-                console.log(transcript + event.results[0]?.transcript)
-                return transcript + event.results[0]?.transcript;
-            });
-            timeoutID = (window.setTimeout(stopRecording, 4000))
-            console.log(timeoutID)
-        }
-        // console.log(event);
-    });
-    useSpeechRecognitionEvent("error", (event: any) => {
-        console.log("error code:", event.error, "error messsage:", event.message);
-    });
-
-    const handleSTT = async () => {
-        const result = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
-        if (!result.granted) {
-            console.warn("Permissions not granted", result);
-            return;
-        }
-        // Start speech recognition
-        ExpoSpeechRecognitionModule.start({
-            lang: "en-US",
-            interimResults: true,
-            maxAlternatives: 1,
-            continuous: true,
-            requiresOnDeviceRecognition: false,
-            addsPunctuation: true,
-            contextualStrings: ["Carlsen", "Nepomniachtchi", "Praggnanandhaa"],
-        });
-    };
-
     return (
         <View style={styles.pageStyle}>
             <Header
                 title={storyProps.title} />
             {/* <Feather style={styles.settingsIcon} name="settings" size={30} color="white" backgroundColor="transparent" onPress={() => useSettingsBtnEvent()} /> */}
-            <MicIcon listening={listening} micBtnEvent={() => micBtnEvent()} />
-            <Feather style={styles.micIcon} name="mic" size={30} color="white" backgroundColor="transparent" onPress={micBtnEvent} />
             <Feather style={styles.saveIcon} name="arrow-left-circle" size={30} color="white" backgroundColor="transparent" onPress={backBtnEvent} />
 
             <ScrollView style={styles.scrollStyle} >
@@ -236,7 +228,9 @@ export default function StoryPage() {
                                 setInput={setInputText}
                                 input={inputText}
                                 submitInput={() => submitResponseBtnEvent(response.id)}
-                                editInput={() => editInput(response.id)} />
+                                editInput={() => editInput(response.id)}
+                                toggleRecording={toggleRecording}
+                            />
                         );
                     }
                     return (
@@ -294,8 +288,3 @@ const styles = StyleSheet.create({
 
 
 });
-
-
-
-
-

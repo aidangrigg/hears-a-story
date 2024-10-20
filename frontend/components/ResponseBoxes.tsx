@@ -1,15 +1,13 @@
-import { Alert, StyleSheet, TextInput, ViewComponent, TouchableHighlight, TouchableNativeFeedback, TouchableOpacity  } from 'react-native';
+import { StyleSheet, TextInput  } from 'react-native';
 import { Text, View } from "react-native";
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Entypo from '@expo/vector-icons/Entypo';
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import  { useId }  from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
-
+import { Feather } from '@expo/vector-icons';
 
 export class Response {
     id: string;
@@ -52,16 +50,12 @@ export class UserResponse extends Response {
     }
 }
 
-
-
 type buttonEvents = (params: any) => any;
-
 
 interface NarratorTextboxProps {
     response: NarratorResponse;
     backBtn: buttonEvents;
     playBtn: any;
-
 }
 
 
@@ -88,11 +82,6 @@ export function NarratorTextbox({ response, backBtn, playBtn }: NarratorTextboxP
                 <Entypo.Button style={styles.backIcon} name="controller-jump-to-start" size={20} color="rgba(0, 224, 255, 1)" backgroundColor="transparent" onPress={backBtn} />
                 <Entypo.Button style={styles.playIcon} id="playButton" name="controller-play" size={20} color="rgba(0, 224, 255, 1)" backgroundColor="transparent" onPress={playBtn} />
             </View>
-
-
-
-
-
         </View>
     );
 };
@@ -103,11 +92,10 @@ interface UserTextboxProps {
     input: string;
     setInput: any;
     editInput: any;
-
-
+    toggleRecording: () => void;
 }
 
-export function UserTextbox({ response, submitInput, input, setInput, editInput }: UserTextboxProps) {
+export function UserTextbox({ response, submitInput, input, setInput, editInput, toggleRecording }: UserTextboxProps) {
     if (response.mostCurrent == true && response.editing == true) {
         return (
             <View style={styles.userBox}>
@@ -120,7 +108,10 @@ export function UserTextbox({ response, submitInput, input, setInput, editInput 
                     multiline
                 />
 
-                <FontAwesome.Button style={styles.submitIcon} name="pencil" size={24} color="white" backgroundColor='transparent' onPress={submitInput}> Submit </FontAwesome.Button>
+                <View style={{ flexDirection: 'row-reverse', gap: 5 }}>
+                    <Feather style={styles.micIcon} name={"mic"} size={24} color="white" backgroundColor="transparent" onPress={toggleRecording} />
+                    <FontAwesome.Button style={styles.submitIcon} name="pencil" size={24} color="white" backgroundColor='transparent' onPress={submitInput}> Submit </FontAwesome.Button>
+                </View>
             </View>
 
         )
@@ -250,10 +241,18 @@ const styles = StyleSheet.create({
     submitIcon: {
         borderWidth: 1,
         justifyContent: 'center',
-
         borderRadius: 15,
         borderColor: "white",
-
+    },
+    micIcon: {
+        padding: 5,
+        paddingLeft: 10,
+        paddingRight: 10,
+        borderWidth: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 15,
+        borderColor: "white",
     },
     text: {
 
