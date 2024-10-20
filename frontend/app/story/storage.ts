@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { Story, StoryGenre, StoryLength, StoryResponseType, } from '@/types/Story';
+import { Story, StoryGenre, StoryLength, StoryResponseType, } from '@/types/Story';
+
+import introductions from "./introductions.json";
 
 const CURRENT_STORY_KEY = "current_story";
 
@@ -44,13 +46,19 @@ export async function getAllStories(): Promise<Story[]> {
  * to the newly created story.
  * Returns the created story id.
  */
-export async function createStory(title: string, genre: StoryGenre, length: StoryLength, isCurrent = true, allowAdultContent = false): Promise<string> {
+export async function createStory(title: string, genre: StoryGenre, length: StoryLength, isCurrent = true, allowAdultContent = false): Promise<string> {    
+  let introduction = introductions[genre];
+
   let story: Story = {
     id: crypto.randomUUID(),
     dateCreated: new Date(),
     genre: genre,
     length: length,
-    responses: [],
+    responses: [{
+      response_id: crypto.randomUUID(),
+      text: introduction,
+      type: StoryResponseType.NARRATOR
+    }],
     memoryStream: [],
     milestoneIndex: 1,
     promptsSinceLastMilestone: 1,

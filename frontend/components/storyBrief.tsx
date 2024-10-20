@@ -1,11 +1,11 @@
 import { View, Image, Text, Pressable, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { StyleSheet } from 'react-native';
-import { useContext } from "react";
-
+              
 import Feather from '@expo/vector-icons/Feather';
 import type { Story } from "@/types/Story";
 import { capitalize } from "@/utils/formatting";
+import * as Storage from "@/app/story/storage";
 
 export default function Story({storyProps} : {storyProps: Story}) {
   
@@ -35,7 +35,10 @@ export default function Story({storyProps} : {storyProps: Story}) {
             backgroundColor={"#192637"} 
             iconStyle={styles.icons}
             borderRadius={100}
-            onPress={() => navigation.navigate('Story Page', {storyProps: storyProps})}>
+            onPress={() => {
+              Storage.setCurrentStory(storyProps.id);
+              navigation.navigate('Story Page', {storyProps: storyProps});
+            }}>
           </Feather.Button>
 
           <Feather.Button

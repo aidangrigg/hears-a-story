@@ -52,7 +52,7 @@ export default function CreateStory() {
                     <Text
                         style={styles.detail}>Enter a duration for your new story</Text>
                     <RadioButton.Group onValueChange={value => setDuration(value as StoryLength)} value={newDuration}>
-                        {Object.keys(StoryLength).map((length) => {
+                        {Object.values(StoryLength).map((length) => {
                             return (
                                 <RadioButton.Item
                                     key={length}
@@ -92,7 +92,7 @@ export default function CreateStory() {
                     <Text
                         style={styles.detail}>Choose the genre(s) for your story</Text>
                   <RadioButton.Group onValueChange={value => setGenre(value as StoryGenre)} value={newGenre}>
-                      {Object.keys(StoryGenre).map((genre) => {
+                      {Object.values(StoryGenre).map((genre) => {
                           return (
                               <RadioButton.Item
                                   key={genre}

@@ -1,33 +1,25 @@
-import { Text, View, FlatList, ScrollView, Alert } from "react-native";
-import { StyleSheet, Image, Platform } from 'react-native';
+import { View, ScrollView, Alert } from "react-native";
+import { StyleSheet } from 'react-native';
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { NarratorTextbox, UserTextbox, Response, UserResponse, NarratorResponse } from '@/components/ResponseBoxes';
-import {ExpoSpeechRecognitionModule, useSpeechRecognitionEvent,} from "expo-speech-recognition";
-import React, { useState, useEffect } from 'react';
+import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent, } from "expo-speech-recognition";
+import { useEffect, useState } from 'react';
 import Feather from '@expo/vector-icons/Feather';
 import { Header } from "@/components/header";
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import * as Storage from "./story/storage";
+import { StoryGenerator } from "./story/storyManager";
+import { StoryResponseType } from "@/types/Story";
 
 interface MicIconProps {
-    
     listening: boolean;
     micBtnEvent: any;
 }
 
-export function MicIcon({ listening, micBtnEvent}: MicIconProps) {
-    if(listening){
-        return (
-            <Feather style={styles.micIcon} name="mic" size={30} color="white" backgroundColor="transparent" onPress={micBtnEvent} />
-            
-        );
-
-    }
+export function MicIcon({ listening, micBtnEvent }: MicIconProps) {
     return (
-        <Feather style={styles.micIcon} name="mic-off" size={30} color="white" backgroundColor="transparent" onPress={micBtnEvent} />
+        <Feather style={styles.micIcon} name={listening ? "mic" : "mic-off"} size={30} color="white" backgroundColor="transparent" onPress={micBtnEvent} />
     );
 };
-
-
 
 export default function StoryPage() {
     const navigation: any = useNavigation();
@@ -37,18 +29,50 @@ export default function StoryPage() {
     const [responses, setResponses] = useState<Response[]>([new NarratorResponse("")]);
     const [recognizing, setRecognizing] = useState(false);
     const [transcript, setTranscript] = useState("");
-    let [timeoutID] = useState(Number)    
+    let [timeoutID] = useState(Number)
 
     const test = [new NarratorResponse(""), new UserResponse("")]
     const [inputText, setInputText] = useState("");
     const [listening, setlistening] = useState(true);
+    const [storyGen, setStoryGen] = useState<StoryGenerator | null>(null);
 
-    //Place function to play from beggining text to speech here
+    // Place function to play from beggining text to speech here
     const playfromStartBtnEvent = () => {
         Alert.alert('You tapped the button!');
     }
 
- 
+    useEffect(() => {
+        const prepStorage = async () => {
+            let story = await Storage.getCurrentStory();
+
+            if (story === null) {
+                console.error("Current story has not been set.");
+                return;
+            }
+
+            let storyGen = new StoryGenerator(story);
+
+            let loadedResponses = story.responses.flatMap((response) => {
+                switch (response.type) {
+                    case StoryResponseType.NARRATOR:
+                        return new NarratorResponse(response.text);
+                    case StoryResponseType.USER:
+                        return new UserResponse(response.text, false);
+                }
+            });
+
+            if (story.isFinished) {
+                setResponses(loadedResponses);
+            } else {
+                setResponses([...loadedResponses, new UserResponse("", true)]);
+            }
+            
+            setStoryGen(storyGen);
+        };
+        
+        prepStorage().catch(console.error);
+    }, []);
+
     //Place function to play/pause text to speech here
     const playBtnEvent = (id: string) => {
         handleSTT();
@@ -56,7 +80,7 @@ export default function StoryPage() {
             if (response.id === id) {
                 const newResponse = response;
                 console.log("Old Response = " + JSON.stringify(newResponse));
-                if(newResponse.playing == false){
+                if (newResponse.playing == false) {
                     newResponse.playing = true;
                 } else {
                     newResponse.playing = false;
@@ -71,29 +95,37 @@ export default function StoryPage() {
     }
 
     const micBtnEvent = () => {
-        if(listening){
+        if (listening) {
             setlistening(false);
 
-        } else{
+        } else {
             setlistening(true);
         }
-        
+
     }
 
-    const submitResponseBtnEvent = (id: string) => {
-        console.log("Old Response = " + JSON.stringify(responses[responses.length - 1]));
+    const submitResponseBtnEvent = async (id: string) => {
+        const input = inputText;
         const updatedResponses = responses.map(response => {
             if (response.id === id) {
-                const newResponse = response;
-                newResponse.text = inputText;
-                newResponse.editing = false;
-                return newResponse;
-            } else {
-                return response;
+                response.text = input;
+                response.editing = false;
+                response.mostCurrent = false;
             }
+            return response;
         });
-        setResponses(updatedResponses);
-        console.log("New Response = " + JSON.stringify(responses[responses.length - 1]));
+
+        let narratorResponse = await storyGen?.continueStory({
+            sentiment: "",
+            userResponse: input
+        });
+
+        if (narratorResponse === undefined) {
+            console.error("Failed to generate next story part.");
+            return;
+        }
+        
+        setResponses([...updatedResponses, new NarratorResponse(narratorResponse), new UserResponse("")]);
     }
 
     const editInput = (id: string) => {
@@ -107,7 +139,6 @@ export default function StoryPage() {
             }
         });
         setResponses(updatedResponses);
-
     }
 
     //PLace function to save responses to storage here
@@ -135,8 +166,6 @@ export default function StoryPage() {
             response = new UserResponse(text);
         }
         return response;
-
-
     }
 
     const stopRecording = () => {
@@ -156,13 +185,13 @@ export default function StoryPage() {
     useSpeechRecognitionEvent("result", (event: any) => {
         // console.log("STT RESULT")
         window.clearTimeout(timeoutID)
-        if (event.isFinal){
-          setTranscript(transcript => {
-            console.log(transcript + event.results[0]?.transcript)
-            return transcript + event.results[0]?.transcript;
-          });
-          timeoutID = (window.setTimeout(stopRecording, 4000))
-          console.log(timeoutID)
+        if (event.isFinal) {
+            setTranscript(transcript => {
+                console.log(transcript + event.results[0]?.transcript)
+                return transcript + event.results[0]?.transcript;
+            });
+            timeoutID = (window.setTimeout(stopRecording, 4000))
+            console.log(timeoutID)
         }
         // console.log(event);
     });
@@ -188,18 +217,10 @@ export default function StoryPage() {
         });
     };
 
-
-
-    let storyName: string = storyProps?.title;
     return (
-
         <View style={styles.pageStyle}>
             <Header
-                title={storyProps?.title}></Header>
-            <Text>
-            </Text>
-
-
+                title={storyProps.title} />
             {/* <Feather style={styles.settingsIcon} name="settings" size={30} color="white" backgroundColor="transparent" onPress={() => useSettingsBtnEvent()} /> */}
             <MicIcon listening={listening} micBtnEvent={() => micBtnEvent()} />
             <Feather style={styles.micIcon} name="mic" size={30} color="white" backgroundColor="transparent" onPress={micBtnEvent} />
@@ -208,31 +229,30 @@ export default function StoryPage() {
             <ScrollView style={styles.scrollStyle} >
                 {responses.map(response => {
                     if (response.type == "U") {
-                        return <UserTextbox
+                        return (
+                            <UserTextbox
+                                key={response.id}
+                                response={response}
+                                setInput={setInputText}
+                                input={inputText}
+                                submitInput={() => submitResponseBtnEvent(response.id)}
+                                editInput={() => editInput(response.id)} />
+                        );
+                    }
+                    return (
+                        <NarratorTextbox
                             key={response.id}
                             response={response}
-                            setInput={setInputText}
-                            input={inputText}
-                            submitInput={() => submitResponseBtnEvent(response.id)}
-                            editInput={() => editInput(response.id)} />
-
-                    };
-                    return <NarratorTextbox
-                    key={response.id}
-                        response={response}
-                        backBtn={playfromStartBtnEvent}
-                        playBtn={() => playBtnEvent(response.id)}
-                    />;
+                            backBtn={playfromStartBtnEvent}
+                            playBtn={() => playBtnEvent(response.id)}
+                        />
+                    );
 
                 })}
 
                 <View style={styles.hidden}>
                 </View>
             </ScrollView>
-
-
-
-
         </View>
     );
 };

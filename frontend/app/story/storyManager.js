@@ -28,16 +28,6 @@ export class StoryGenerator {
         this.inference = new HfInference(HF_ACCESS_TOKEN);
     }
 
-    // Will return an intro if it is a new story, otherwise returns nothing
-    async initialize() {
-        const story = await Storage.getCurrentStory();
-
-        if (story.responses.length <= 0) { // if the story is new, insert the introduction
-            await Storage.addStoryResponse(StoryResponseType.NARRATOR, this.introduction);
-            return this.introduction;
-        }
-    }
-
     async generateText(prompt){
         try{
             let result = "";

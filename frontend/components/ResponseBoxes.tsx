@@ -26,7 +26,6 @@ export class Response {
         this.mostCurrent = false;
         this.editing = false;
         this.playing = false;
-
     }
 };
 
@@ -43,15 +42,14 @@ export class NarratorResponse extends Response {
 }
 
 export class UserResponse extends Response {
-    constructor(text: string) {
+    constructor(text: string, mostCurrent = true) {
         super();
         this.text = text;
         this.type = 'U';
-        this.mostCurrent = true;
+        this.mostCurrent = mostCurrent;
         this.editing = true;
         this.playing = false;
     }
-
 }
 
 
@@ -132,7 +130,6 @@ export function UserTextbox({ response, submitInput, input, setInput, editInput 
                 <Ionicons style={styles.userIcon} name="person-sharp" size={30} color="white" />
                 <Text style={styles.userText}>{response.text}</Text>
                 <AntDesign.Button style={styles.RemoveIcon} name="edit" size={24} color="white" backgroundColor='transparent' onPress={editInput}> Edit Response </AntDesign.Button>
-
             </View>
         )
     }
