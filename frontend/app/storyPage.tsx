@@ -86,7 +86,6 @@ export default function StoryPage() {
     }
 
     const submitResponseBtnEvent = (id: string) => {
-        console.log("Old Response = " + JSON.stringify(responses[responses.length - 1]));
         const updatedResponses = responses.map(response => {
             if (response.id === id) {
                 const newResponse = response;
@@ -98,10 +97,30 @@ export default function StoryPage() {
             }
         });
         setResponses(updatedResponses);
-        console.log("New Response = " + JSON.stringify(responses[responses.length - 1]));
     }
 
-    const editInput = (id: string) => {
+    
+
+    const submitTranscript = (text: string) => {
+            const updatedResponses = responses.map(response => {
+                if (response === responses[responses.length-1]) {
+                    const newResponse = response;
+                    console.log(newResponse);
+                    newResponse.text = text;
+                    newResponse.editing = false;
+                    console.log(newResponse);
+                    return newResponse;
+                } else {
+                    return response;
+                }
+            });
+            setResponses(updatedResponses);
+        
+        
+    }
+
+
+    const editInputBtnEvent = (id: string) => {
         const updatedResponses = responses.map(response => {
             if (response.id === id) {
                 const newResponse = response;
@@ -134,6 +153,8 @@ export default function StoryPage() {
 
     }
 
+
+
     const stopRecording = () => {
         ExpoSpeechRecognitionModule.stop()
     }
@@ -145,8 +166,12 @@ export default function StoryPage() {
     useSpeechRecognitionEvent("end", () => {
         setRecognizing(false);
         // console.log("STT END")
-        createResponse(transcript, 1)
-        // setTimeout(handleSTT, 2000)
+        //console.log(transcript);
+
+        
+        
+
+
     })
     useSpeechRecognitionEvent("result", (event: any) => {
         // console.log("STT RESULT")
@@ -154,6 +179,7 @@ export default function StoryPage() {
         if (event.isFinal){
           setTranscript(transcript => {
             console.log(transcript + event.results[0]?.transcript)
+            submitTranscript(event.results[0]?.transcript);
             return transcript + event.results[0]?.transcript;
           });
           timeoutID = (window.setTimeout(stopRecording, 4000))
@@ -193,12 +219,10 @@ export default function StoryPage() {
                 title={storyProps?.title}></Header>
             <Text>
             </Text>
+            <View>
+            <Feather style={styles.backIcon} name="arrow-left-circle" size={30} color="white" backgroundColor="transparent" onPress={backBtnEvent} />
 
-
-            {/* <Feather style={styles.settingsIcon} name="settings" size={30} color="white" backgroundColor="transparent" onPress={() => useSettingsBtnEvent()} /> */}
-            {/* <MicIcon listening={listening} micBtnEvent={() => micBtnEvent()} /> */}
-            {/* <Feather style={styles.micIcon} name="mic" size={30} color="white" backgroundColor="transparent" onPress={micBtnEvent} /> */}
-            <Feather style={styles.saveIcon} name="arrow-left-circle" size={30} color="white" backgroundColor="transparent" onPress={backBtnEvent} />
+            </View>
 
             <ScrollView style={styles.scrollStyle} >
                 {responses.map(response => {
@@ -209,7 +233,7 @@ export default function StoryPage() {
                             setInput={setInputText}
                             input={inputText}
                             submitInput={() => submitResponseBtnEvent(response.id)}
-                            editInput={() => editInput(response.id)}
+                            editInput={() => editInputBtnEvent(response.id)}
                             micBtnEvent={() => record()}  />
 
                     };
@@ -255,10 +279,9 @@ const styles = StyleSheet.create({
         right: 10,
 
     },
-    saveIcon: {
-        position: 'absolute',
-        top: 180,
-        left: 10,
+    backIcon: {
+        marginTop: 10,
+        marginLeft: 10,
     },
     micIcon: {
         position: 'absolute',
