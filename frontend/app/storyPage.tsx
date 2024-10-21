@@ -9,11 +9,13 @@ import { Header } from "@/components/header";
 import * as Storage from "./story/storage";
 import { StoryGenerator } from "./story/storyManager";
 import { StoryResponseType } from "@/types/Story";
+import { TTS } from "./story/tts";
 
 export default function StoryPage() {
     const navigation: any = useNavigation();
     const route: any = useRoute();
     const { storyProps } = route.params;
+    const tts = new TTS();
 
     const [responses, setResponses] = useState<Response[]>([]);
     const [recognizing, setRecognizing] = useState(false);
@@ -28,8 +30,11 @@ export default function StoryPage() {
     const [timeoutId, setTimeoutId] = useState<number>();
 
     // Place function to play from beggining text to speech here
-    const playfromStartBtnEvent = () => {
-        Alert.alert('You tapped the button!');
+    const playfromStartBtnEvent = async (response: Response) => {
+        if (await tts.isSpeaking()) {
+            await tts.stop();
+        }
+        await tts.speak(response.text, {});
     }
 
     useEffect(() => {
@@ -99,7 +104,7 @@ export default function StoryPage() {
         setInputText(event.results[0]?.transcript);
         window.clearTimeout(timeoutId);
         if (event.isFinal) {
-            setTimeoutId(window.setTimeout(stopRecording, 4000));
+            setTimeoutId(window.setTimeout(stopRecording, 2000));
         }
     });
 
@@ -125,24 +130,12 @@ export default function StoryPage() {
         });
     };
 
-    //Place function to play/pause text to speech here
-    const playBtnEvent = (id: string) => {
-        const updatedResponses = responses.map(response => {
-            if (response.id === id) {
-                const newResponse = response;
-                console.log("Old Response = " + JSON.stringify(newResponse));
-                if (newResponse.playing == false) {
-                    newResponse.playing = true;
-                } else {
-                    newResponse.playing = false;
-                }
-                console.log("New Response = " + JSON.stringify(newResponse));
-                return newResponse;
-            } else {
-                return response;
-            }
-        });
-        setResponses(updatedResponses);
+    // Place function to play/pause text to speech here
+    const playBtnEvent = async (response: Response) => {
+        if (await tts.isSpeaking()) {
+            await tts.stop();
+        }
+        await tts.speak(response.text, {});
     }
 
     const submitResponseBtnEvent = async (id: string) => {
@@ -169,6 +162,12 @@ export default function StoryPage() {
         setCurrentResponseId(userResponse.id);
         setInputText("");
         setResponses([...updatedResponses, new NarratorResponse(narratorResponse), userResponse]);
+
+        if (await tts.isSpeaking()) {
+            await tts.stop();
+        }
+        
+        await tts.speak(narratorResponse, {});
     }
 
     const editInput = (id: string) => {
@@ -237,8 +236,8 @@ export default function StoryPage() {
                         <NarratorTextbox
                             key={response.id}
                             response={response}
-                            backBtn={playfromStartBtnEvent}
-                            playBtn={() => playBtnEvent(response.id)}
+                            backBtn={() => playfromStartBtnEvent(response)}
+                            playBtn={() => playBtnEvent(response)}
                         />
                     );
 
