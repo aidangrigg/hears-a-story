@@ -31,16 +31,27 @@ export class StoryGenerator {
     async generateText(prompt){
         try{
             let result = "";
-            //Use the model
-            for await (const chunk of this.inference.chatCompletionStream({
+
+            let query = await this.inference.chatCompletion({
                 model: "microsoft/Phi-3-mini-4k-instruct",
                 messages: [{ role: "user", content: prompt }],
                 max_tokens: 500,
                 bad_words_ids: [[50256]]  //Prevents the end-of-text token from cutting it off
-            })) {
-                // Append each chunk's content to the result
-                result += chunk.choices[0]?.delta?.content || "";
-            }
+            });
+
+            result = query.choices[0].message.content;
+
+            // console.log(something.choices[0].message);
+            //Use the model
+            // for await (const chunk of this.inference.chatCompletion({
+            //     model: "microsoft/Phi-3-mini-4k-instruct",
+            //     messages: [{ role: "user", content: prompt }],
+            //     max_tokens: 500,
+            //     bad_words_ids: [[50256]]  //Prevents the end-of-text token from cutting it off
+            // })) {
+            //     // Append each chunk's content to the result
+            //     result += chunk.choices[0]?.delta?.content || "";
+            // }
             // Log the full result after all chunks are processed
             console.log("Generated story part:", result);
             return result;
@@ -52,16 +63,29 @@ export class StoryGenerator {
     async generateParsedText(prompt){
         try{
             let result = "";
-            //Use the model
-            for await (const chunk of this.inference.chatCompletionStream({
+
+            let query = await this.inference.chatCompletion({
                 model: "microsoft/Phi-3-mini-4k-instruct",
                 messages: [{ role: "user", content: prompt }],
                 max_tokens: 500,
                 bad_words_ids: [[50256]]  //Prevents the end-of-text token from cutting it off
-            })) {
-                // Append each chunk's content to the result
-                result += chunk.choices[0]?.delta?.content || "";
-            }
+            });
+
+            result = query.choices[0].message.content;
+
+
+            
+            //Use the model
+            // for await (const chunk of this.inference.chatCompletionStream({
+            //     model: "microsoft/Phi-3-mini-4k-instruct",
+            //     messages: [{ role: "user", content: prompt }],
+            //     max_tokens: 500,
+            //     bad_words_ids: [[50256]]  //Prevents the end-of-text token from cutting it off
+            // })) {
+            //     // Append each chunk's content to the result
+            //     result += chunk.choices[0]?.delta?.content || "";
+            // }
+            console.log("generate parsed text", result);
             // Log the full result after all chunks are processed
             //console.log("Generated story part:", result);
 
@@ -218,6 +242,8 @@ export class StoryGenerator {
 	
         const result = await this.generateParsedText(prompt);
         const memoryStreamFragments = await this.populateMemoryStream(result);
+
+        console.log("result: ", result);
 
         const responseId = await Storage.addStoryResponse(StoryResponseType.NARRATOR, result);
 

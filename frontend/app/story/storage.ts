@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Story, StoryGenre, StoryLength, StoryResponseType, } from '@/types/Story';
+import { v4 as uuidv4 } from 'uuid';
 
 import introductions from "./introductions.json";
 
@@ -50,12 +51,12 @@ export async function createStory(title: string, genre: StoryGenre, length: Stor
   let introduction = introductions[genre];
 
   let story: Story = {
-    id: crypto.randomUUID(),
+    id: uuidv4(),
     dateCreated: new Date(),
     genre: genre,
     length: length,
     responses: [{
-      response_id: crypto.randomUUID(),
+      response_id: uuidv4(),
       text: introduction,
       type: StoryResponseType.NARRATOR
     }],
@@ -113,7 +114,7 @@ export async function addStoryResponse(type: StoryResponseType, text: string) {
   }
 
   let story = maybeCurrentStory;
-  let response = { response_id: crypto.randomUUID(), type, text };
+  let response = { response_id: uuidv4(), type, text };
 
   story.responses.push(response);
   setStory(story.id, story);
