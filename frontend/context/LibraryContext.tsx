@@ -5,11 +5,13 @@ import { Story } from "@/types/Story";
   export interface LibraryContextProps {
     library: Story[];
     addStory: (newStory: Story) => void;
+    removeStory: (key: number) => void;
   }
 
   export const LibraryContext = createContext<LibraryContextProps>({
     library: [],
     addStory: () => {},
+    removeStory: () => {},
   });
 
 
@@ -24,8 +26,12 @@ import { Story } from "@/types/Story";
       updateLibrary([...library, newStory]);
     };
 
+    const removeStory = (key: number) => {
+      updateLibrary(library.filter(story => story.key !== key));
+    };
+
     return (
-      <LibraryContext.Provider value={{ library, addStory }}>
+      <LibraryContext.Provider value={{ library, addStory, removeStory }}>
         {children}
       </LibraryContext.Provider>
     );
