@@ -170,7 +170,28 @@ export default function StoryPage() {
         await tts.speak(narratorResponse, {});
     }
 
-    const editInput = (id: string) => {
+    
+
+    const submitTranscript = (text: string) => {
+            const updatedResponses = responses.map(response => {
+                if (response === responses[responses.length-1]) {
+                    const newResponse = response;
+                    console.log(newResponse);
+                    newResponse.text = text;
+                    newResponse.editing = false;
+                    console.log(newResponse);
+                    return newResponse;
+                } else {
+                    return response;
+                }
+            });
+            setResponses(updatedResponses);
+        
+        
+    }
+
+
+    const editInputBtnEvent = (id: string) => {
         const updatedResponses = responses.map(response => {
             if (response.id === id) {
                 const newResponse = response;
@@ -182,22 +203,12 @@ export default function StoryPage() {
         });
         setResponses(updatedResponses);
     }
-
-    //PLace function to save responses to storage here
+    
     const backBtnEvent = () => {
         navigation.goBack();
     }
 
-    // const useSettingsBtnEvent = () => {
-    //     //why doesnt this work?!?!
-    //    // console.log(createResponse("", 0));
 
-    //     //const response = createResponse("", 0);
-    //     // const newResponses = [...responses, new NarratorResponse("")];
-    //     setResponses([...responses, createResponse("", 0)]);
-
-
-    // }
 
     const createResponse = (text: string, type: number) => {
         let response: Response;
@@ -213,9 +224,11 @@ export default function StoryPage() {
     return (
         <View style={styles.pageStyle}>
             <Header
-                title={storyProps.title} />
-            {/* <Feather style={styles.settingsIcon} name="settings" size={30} color="white" backgroundColor="transparent" onPress={() => useSettingsBtnEvent()} /> */}
-            <Feather style={styles.saveIcon} name="arrow-left-circle" size={30} color="white" backgroundColor="transparent" onPress={backBtnEvent} />
+                title={storyProps?.title}></Header>
+            <View>
+                <Feather style={styles.backIcon} name="arrow-left-circle" size={30} color="white" backgroundColor="transparent" onPress={backBtnEvent} />
+
+            </View>
 
             <ScrollView style={styles.scrollStyle} >
                 {responses.map(response => {
@@ -272,10 +285,9 @@ const styles = StyleSheet.create({
         right: 10,
 
     },
-    saveIcon: {
-        position: 'absolute',
-        top: 180,
-        left: 10,
+    backIcon: {
+        marginTop: 10,
+        marginLeft: 10,
     },
     micIcon: {
         position: 'absolute',

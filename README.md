@@ -6,7 +6,7 @@ This will be updated if running the application changes in the future.
 
 1. From the root directory navigate to the frontend folder: 
  ```bash
-    cd frontend
+   cd frontend
    ```
 
 2.  If you haven't already done so, install node package manager: 
@@ -16,5 +16,5 @@ This will be updated if running the application changes in the future.
 
 3. Run the application using expo: 
  ```bash
-    npx expo start
+   npx expo start
    ```

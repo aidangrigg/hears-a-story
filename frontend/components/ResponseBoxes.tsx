@@ -104,7 +104,7 @@ export function UserTextbox({ response, submitInput, input, setInput, editInput,
                     style={styles.inputBoxStyle}
                     onChangeText={text => setInput(text)}
                     value={input}
-                    placeholder="   Type response here..."
+                    placeholder="   Type response here or click mic to record"
                     multiline
                 />
 
@@ -260,6 +260,4 @@ const styles = StyleSheet.create({
         color: "white",
 
     },
-
-
 });  
