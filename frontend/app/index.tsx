@@ -1,5 +1,5 @@
 
-import React, { useState, useContext } from "react";
+import { useEffect, useContext } from "react";
 import { Text, View, Image, Button, ScrollView, Alert, Pressable, StatusBar, StyleSheet} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Feather from '@expo/vector-icons/Feather';
@@ -17,7 +17,12 @@ import Story from "@/components/storyBrief";
 
 export default function Index() {
   const navigation: any = useNavigation();
-  const { library } = useContext(LibraryContext)
+  const { library, refresh } = useContext(LibraryContext)
+
+  useEffect(() => {
+    refresh();
+  }, [])
+    
   console.log(library)
   return (
      <View
@@ -32,7 +37,7 @@ export default function Index() {
       
       <ScrollView 
         style={{ width: "100%"}}>
-        {library.map((story) => <Story storyProps={story} key={story?.key}></Story>)}
+        {library.map((story) => <Story storyProps={story} key={story.id}></Story>)}
       </ScrollView>
       
       <View>

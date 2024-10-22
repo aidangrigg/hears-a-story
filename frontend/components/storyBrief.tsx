@@ -1,14 +1,16 @@
 import { View, Image, Text, Pressable, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { StyleSheet } from 'react-native';
-import { useContext } from "react";
-
+              
 import Feather from '@expo/vector-icons/Feather';
+import type { Story } from "@/types/Story";
+import { capitalize } from "@/utils/formatting";
+import * as Storage from "@/app/story/storage";
 
-export default function Story({storyProps} : {storyProps: any}) {
+export default function Story({storyProps} : {storyProps: Story}) {
   
   const navigation: any = useNavigation();
-
+  
     return (
         <View 
             style={styles.content}>
@@ -19,11 +21,11 @@ export default function Story({storyProps} : {storyProps: any}) {
           <View
             style={styles.textContainer}>
             <Text
-              style={styles.title}>{storyProps?.title}</Text>
+              style={styles.title}>{storyProps.title}</Text>
             <Text
-              style={styles.status}>Status: {storyProps?.status}</Text>
+              style={styles.status}>Status: {storyProps.isFinished ? "Complete" : "Ongoing"}</Text>
             <Text
-              style={styles.duration}>Duration: {storyProps?.duration}</Text>
+               style={styles.duration}>Duration: {capitalize(storyProps.length)}</Text>
           </View>
 
           <Feather.Button
@@ -33,7 +35,10 @@ export default function Story({storyProps} : {storyProps: any}) {
             backgroundColor={"#192637"} 
             iconStyle={styles.icons}
             borderRadius={100}
-            onPress={() => navigation.navigate('Story Page', {storyProps: storyProps})}>
+            onPress={() => {
+              Storage.setCurrentStory(storyProps.id);
+              navigation.navigate('Story Page', {storyProps: storyProps});
+            }}>
           </Feather.Button>
 
           <Feather.Button

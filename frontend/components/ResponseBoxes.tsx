@@ -1,34 +1,13 @@
-import { Alert, StyleSheet, TextInput, ViewComponent, TouchableHighlight, TouchableNativeFeedback, TouchableOpacity  } from 'react-native';
+import { StyleSheet, TextInput  } from 'react-native';
 import { Text, View } from "react-native";
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Entypo from '@expo/vector-icons/Entypo';
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import  { useId }  from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
-import Feather from '@expo/vector-icons/Feather';
-
-interface MicIconProps {
-    
-    listening: boolean;
-    micBtnEvent: any;
-}
-
-export function MicIcon({ listening, micBtnEvent}: MicIconProps) {
-    if(listening){
-        return (
-            <Feather style={styles.micIcon} name="mic" size={30} color="white" backgroundColor="transparent" onPress={micBtnEvent} />
-            
-        );
-
-    }
-    return (
-        <Feather style={styles.micIcon} name="mic-off" size={30} color="white" backgroundColor="transparent" onPress={micBtnEvent} />
-    );
-};
+import { Feather } from '@expo/vector-icons';
 
 export class Response {
     id: string;
@@ -45,7 +24,6 @@ export class Response {
         this.mostCurrent = false;
         this.editing = false;
         this.playing = false;
-
     }
 };
 
@@ -62,27 +40,22 @@ export class NarratorResponse extends Response {
 }
 
 export class UserResponse extends Response {
-    constructor(text: string) {
+    constructor(text: string, mostCurrent = true) {
         super();
         this.text = text;
         this.type = 'U';
-        this.mostCurrent = true;
+        this.mostCurrent = mostCurrent;
         this.editing = true;
         this.playing = false;
     }
-
 }
 
-
-
 type buttonEvents = (params: any) => any;
-
 
 interface NarratorTextboxProps {
     response: NarratorResponse;
     backBtn: buttonEvents;
     playBtn: any;
-
 }
 
 
@@ -109,11 +82,6 @@ export function NarratorTextbox({ response, backBtn, playBtn }: NarratorTextboxP
                 <Entypo.Button style={styles.backIcon} name="controller-jump-to-start" size={20} color="rgba(0, 224, 255, 1)" backgroundColor="transparent" onPress={backBtn} />
                 <Entypo.Button style={styles.playIcon} id="playButton" name="controller-play" size={20} color="rgba(0, 224, 255, 1)" backgroundColor="transparent" onPress={playBtn} />
             </View>
-
-
-
-
-
         </View>
     );
 };
@@ -124,12 +92,10 @@ interface UserTextboxProps {
     input: string;
     setInput: any;
     editInput: any;
-    micBtnEvent: any;
-
-
+    toggleRecording: () => void;
 }
 
-export function UserTextbox({ response, submitInput, input, setInput, editInput, micBtnEvent }: UserTextboxProps) {
+export function UserTextbox({ response, submitInput, input, setInput, editInput, toggleRecording }: UserTextboxProps) {
     if (response.mostCurrent == true && response.editing == true) {
         return (
             <View style={styles.userBox}>
@@ -141,11 +107,12 @@ export function UserTextbox({ response, submitInput, input, setInput, editInput,
                     placeholder="   Type response here or click mic to record"
                     multiline
                 />
-                <View style={styles.NarratorMenuView}>
-                <FontAwesome.Button style={styles.submitIcon} name="pencil" size={24} color="white" backgroundColor='transparent' onPress={submitInput} />
-                <Feather.Button style={styles.micIcon} name="mic" size={24} color="white" backgroundColor='transparent' onPress={micBtnEvent} />
+
+                <View style={{ flexDirection: 'row-reverse', gap: 5 }}>
+                    <Feather style={styles.micIcon} name={"mic"} size={24} color="white" backgroundColor="transparent" onPress={toggleRecording} />
+                    <FontAwesome.Button style={styles.submitIcon} name="pencil" size={24} color="white" backgroundColor='transparent' onPress={submitInput}> Submit </FontAwesome.Button>
                 </View>
-                </View>
+            </View>
 
         )
     } else if (response.mostCurrent == true) {
@@ -154,7 +121,6 @@ export function UserTextbox({ response, submitInput, input, setInput, editInput,
                 <Ionicons style={styles.userIcon} name="person-sharp" size={30} color="white" />
                 <Text style={styles.userText}>{response.text}</Text>
                 <AntDesign.Button style={styles.RemoveIcon} name="edit" size={24} color="white" backgroundColor='transparent' onPress={editInput}> Edit Response </AntDesign.Button>
-
             </View>
         )
     }
@@ -275,10 +241,18 @@ const styles = StyleSheet.create({
     submitIcon: {
         borderWidth: 1,
         justifyContent: 'center',
-        width: '90%',
         borderRadius: 15,
         borderColor: "white",
-
+    },
+    micIcon: {
+        padding: 5,
+        paddingLeft: 10,
+        paddingRight: 10,
+        borderWidth: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 15,
+        borderColor: "white",
     },
     text: {
 
@@ -286,13 +260,4 @@ const styles = StyleSheet.create({
         color: "white",
 
     },
-    micIcon: {
-        borderWidth: 1,
-        justifyContent: 'center',
-        width: '90%',
-        borderRadius: 15,
-        borderColor: "white",
-    },
-
-
 });  

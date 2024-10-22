@@ -1,8 +1,44 @@
-export interface Story {
-  key: number;
-  title: string;
-  status: string;
-  duration: string;
-  genre: string;
-  allowAdultContent: boolean;
+export enum StoryResponseType {
+  NARRATOR,
+  USER
 }
+
+export interface StoryResponse {
+  response_id: string;
+  type: StoryResponseType;
+  text: string;
+}
+
+export interface MemoryStreamFragment {
+  response_id: string;
+  observation: string;
+  location: string;
+}
+
+export enum StoryGenre {
+  CRIME = "crime",
+  SCIFI = "sci-fi",
+  FANTASY = "fantasy",
+  MYSTERY = "mystery",
+}
+
+export enum StoryLength {
+  SHORT = "short",
+  MEDIUM = "medium",
+  LONG = "long"
+}
+
+export interface Story {
+  id: string;
+  title: string;
+  allowAdultContent: boolean;
+  dateCreated: Date;
+  genre: StoryGenre;
+  length: StoryLength;
+  responses: StoryResponse[];
+  memoryStream: MemoryStreamFragment[];
+  milestoneIndex: number;
+  promptsSinceLastMilestone: number;
+  isFinished: boolean;
+}
+
