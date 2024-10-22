@@ -11,7 +11,7 @@ async function query(data) {
         "https://api-inference.huggingface.co/models/michellejieli/emotion_text_classifier",
         {
             headers: {
-                Authorization: "Bearer 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",
+                Authorization: "",
                 "Content-Type": "application/json",
             },
             method: "POST",
