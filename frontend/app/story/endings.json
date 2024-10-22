@@ -1,0 +1,66 @@
+{
+    "crime": {
+      "good": [
+        "The crew successfully steals the painting and escapes without a trace, leaving the art collector baffled.",
+        "The crew manages to outwit the guards and security systems, making off with the priceless painting.",
+        "The heist goes off without a hitch, and the crew celebrates their successful theft in a hidden location."
+      ],
+      "bad": [
+        "The crew's plan falls apart, leading to their capture and imprisonment, the painting lost forever.",
+        "A betrayal within the crew leads to their downfall, with the art collector reclaiming the stolen painting.",
+        "The heist ends in disaster, with the crew scattered and the painting destroyed in the chaos."
+      ],
+      "betrayal": [
+        "A member of the crew double-crosses the others, stealing the painting for themselves and leaving the rest behind."
+      ]
+    },
+    "sci-fi": {
+      "good": [
+        "The crew completes their space heist, returning to their ship with the stolen tech, undetected by the authorities.",
+        "They manage to disable the station's security, escape, and sell the stolen data for a huge payout.",
+        "The mission goes flawlessly, and the crew's reputation in the galaxy skyrockets after their daring heist."
+      ],
+      "bad": [
+        "The space station's defense systems activate, trapping the crew inside as they're apprehended by galactic authorities.",
+        "A critical failure in the ship's systems leaves the crew stranded in space, with no hope of escape.",
+        "The mission ends in disaster, as their ship is destroyed in a chase, leaving the crew drifting in space."
+      ],
+      "betrayal": [
+        "A crew member betrays the team, making off with the stolen tech while sabotaging the others' escape route.",
+        "The mole within the crew hands them over to authorities, leaving the others to face arrest while they disappear."
+      ]
+    },
+    "fantasy": {
+      "good": [
+        "The hero retrieves the magical artifact and returns to their kingdom, restoring peace and balance.",
+        "They defeat the dark sorcerer and bring the artifact back, celebrated as a hero by their people.",
+        "The quest ends in triumph as the hero unlocks the artifact's true power, ensuring the safety of the realm."
+      ],
+      "bad": [
+        "The hero is defeated by the dark sorcerer, and the artifact is lost forever, dooming the kingdom.",
+        "An ancient curse is activated, and the hero's quest ends in failure, with dark forces overtaking the land.",
+        "The hero falls in battle before retrieving the artifact, leaving their kingdom in peril."
+      ],
+      "betrayal": [
+        "The hero's trusted ally steals the artifact and disappears, leaving the kingdom vulnerable to attack.",
+        "A companion turns on the hero at the last moment, taking the artifact for themselves and fleeing."
+      ]
+    },
+    "mystery": {
+      "good": [
+        "The detective pieces together the final clue, revealing the culprit and solving the case.",
+        "The investigation wraps up successfully, and the missing person is found unharmed.",
+        "The detective's intuition pays off, and they catch the criminal just before they escape town."
+      ],
+      "bad": [
+        "The case goes cold, with no answers in sight, leaving the mystery unsolved.",
+        "The detective is misled by false clues, leading to the wrong suspect and a botched investigation.",
+        "The criminal outsmarts the detective, escaping justice and leaving the case unsolved."
+      ],
+      "twist": [
+        "The detective discovers the missing person was orchestrating the entire mystery, playing both sides.",
+        "A trusted ally turns out to be the true criminal, manipulating the detective from the start."
+      ]
+    }
+  }
+  
