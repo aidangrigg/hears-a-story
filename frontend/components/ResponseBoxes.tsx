@@ -34,7 +34,6 @@ export class Response {
     id: string;
     text: string;
     type: string;
-    mostCurrent: boolean;
     editing: boolean;
     playing: boolean;
 
@@ -42,7 +41,6 @@ export class Response {
         this.id = uuidv4();
         this.text = "NULL";
         this.type = "NULL";
-        this.mostCurrent = false;
         this.editing = false;
         this.playing = false;
 
@@ -54,7 +52,6 @@ export class NarratorResponse extends Response {
         super();
         this.text = text;
         this.type = 'N';
-        this.mostCurrent = false;
         this.playing = false;
         this.editing = false;
     }
@@ -66,7 +63,6 @@ export class UserResponse extends Response {
         super();
         this.text = text;
         this.type = 'U';
-        this.mostCurrent = true;
         this.editing = true;
         this.playing = false;
     }
@@ -130,7 +126,7 @@ interface UserTextboxProps {
 }
 
 export function UserTextbox({ response, submitInput, input, setInput, editInput, micBtnEvent }: UserTextboxProps) {
-    if (response.mostCurrent == true && response.editing == true) {
+    if (response.editing == true) {
         return (
             <View style={styles.userBox}>
                 <Ionicons style={styles.userIcon} name="person-sharp" size={30} color="white" />
@@ -148,20 +144,12 @@ export function UserTextbox({ response, submitInput, input, setInput, editInput,
                 </View>
 
         )
-    } else if (response.mostCurrent == true) {
-        return (
-            <View style={styles.userBox}>
-                <Ionicons style={styles.userIcon} name="person-sharp" size={30} color="white" />
-                <Text style={styles.userText}>{response.text}</Text>
-                <AntDesign.Button style={styles.RemoveIcon} name="edit" size={24} color="white" backgroundColor='transparent' onPress={editInput}> Edit Response </AntDesign.Button>
-
-            </View>
-        )
-    }
+    } 
     return (
         <View style={styles.userBox}>
             <Ionicons style={styles.userIcon} name="person-sharp" size={30} color="white" />
             <Text style={styles.userText}>{response.text}</Text>
+            <AntDesign.Button style={styles.RemoveIcon} name="edit" size={24} color="white" backgroundColor='transparent' onPress={editInput}> Edit Response </AntDesign.Button>
 
 
 
