@@ -3,6 +3,19 @@ export enum StoryResponseType {
   USER
 }
 
+export enum Emotions {
+    HAPPY = 'Happy',
+    SAD = 'Sad',
+    ANGRY = 'Angry',
+    IMPRESSED = 'Impressed',
+    ANXIOUS = 'Anxious',
+    CONFIDENT = 'Confident',
+    GUILTY = 'Guilty',
+    SURPRISED = 'Surprised',
+    ANNOYED = 'Annoyed',
+    SCARED = 'Scared'
+}
+
 export interface StoryResponse {
   response_id: string;
   type: StoryResponseType;
@@ -40,5 +53,6 @@ export interface Story {
   milestoneIndex: number;
   promptsSinceLastMilestone: number;
   isFinished: boolean;
+  emotionStream: Emotions[]
 }
 
