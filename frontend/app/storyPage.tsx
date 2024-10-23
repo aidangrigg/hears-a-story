@@ -1,102 +1,173 @@
-import { Text, View, FlatList, ScrollView, Alert } from "react-native";
-import { StyleSheet, Image, Platform } from 'react-native';
+import { View, ScrollView, Alert } from "react-native";
+import { StyleSheet } from 'react-native';
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { NarratorTextbox, UserTextbox, Response, UserResponse, NarratorResponse } from '@/components/ResponseBoxes';
-import {ExpoSpeechRecognitionModule, useSpeechRecognitionEvent,} from "expo-speech-recognition";
-import React, { useState, useEffect } from 'react';
+import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent, } from "expo-speech-recognition";
+import { useEffect, useState } from 'react';
 import Feather from '@expo/vector-icons/Feather';
 import { Header } from "@/components/header";
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-
-interface MicIconProps {
-    listening: boolean;
-    micBtnEvent: any;
-}
-
-export function MicIcon({ listening, micBtnEvent}: MicIconProps) {
-    if(listening){
-        return (
-            <Feather style={styles.micIcon} name="mic" size={30} color="white" backgroundColor="transparent" onPress={micBtnEvent} />
-            
-        );
-
-    }
-    return (
-        <Feather style={styles.micIcon} name="mic-off" size={30} color="white" backgroundColor="transparent" onPress={micBtnEvent} />
-    );
-};
-
-
+import * as Storage from "./story/storage";
+import { StoryGenerator } from "./story/storyManager";
+import { StoryResponseType } from "@/types/Story";
+import { TTS } from "./story/tts";
 
 export default function StoryPage() {
     const navigation: any = useNavigation();
     const route: any = useRoute();
     const { storyProps } = route.params;
+    const tts = new TTS();
 
-    const [responses, setResponses] = useState<Response[]>([new NarratorResponse(""), new UserResponse("")]);
+    const [responses, setResponses] = useState<Response[]>([]);
     const [recognizing, setRecognizing] = useState(false);
-    const [transcript, setTranscript] = useState("");
-    let [timeoutID] = useState(Number)    
 
-    const test = [new NarratorResponse(""), new UserResponse("")]
     const [inputText, setInputText] = useState("");
-    const [listening, setlistening] = useState(true);
+    const [storyGen, setStoryGen] = useState<StoryGenerator | null>(null);
 
-    //Place function to play from beggining text to speech here
-    const playfromStartBtnEvent = () => {
-        Alert.alert('You tapped the button!');
+    const [voiceInputIsOver, setVoiceInputIsOver] = useState(false);
+    const [currentResponseId, setCurrentResponseId] = useState("");
+
+    // const [transcript, setTranscript] = useState("");
+    const [timeoutId, setTimeoutId] = useState<number>();
+
+    // Place function to play from beggining text to speech here
+    const playfromStartBtnEvent = async (response: Response) => {
+        if (await tts.isSpeaking()) {
+            await tts.stop();
+        }
+        await tts.speak(response.text, {});
     }
 
- 
-    //Place function to play/pause text to speech here
-    const playBtnEvent = (id: string) => {
-        
-        const updatedResponses = responses.map(response => {
-            if (response.id === id) {
-                const newResponse = response;
-                console.log("Old Response = " + JSON.stringify(newResponse));
-                if(newResponse.playing == false){
-                    newResponse.playing = true;
-                } else {
-                    newResponse.playing = false;
+    useEffect(() => {
+        const prepStorage = async () => {
+            let story = await Storage.getCurrentStory();
+
+            if (story === null) {
+                console.error("Current story has not been set.");
+                return;
+            }
+
+            let storyGen = new StoryGenerator(story);
+
+            let loadedResponses = story.responses.flatMap((response) => {
+                switch (response.type) {
+                    case StoryResponseType.NARRATOR:
+                        return new NarratorResponse(response.text);
+                    case StoryResponseType.USER:
+                        return new UserResponse(response.text, false);
                 }
-                console.log("New Response = " + JSON.stringify(newResponse));
-                return newResponse;
+            });
+
+            if (story.isFinished) {
+                setResponses(loadedResponses);
             } else {
-                return response;
+                const userResponse = new UserResponse("", true);
+                setCurrentResponseId(userResponse.id);
+                setResponses([...loadedResponses, userResponse]);
             }
+
+            setStoryGen(storyGen);
+        };
+
+        prepStorage().catch(console.error);
+    }, []);
+
+    useEffect(() => {
+        if (voiceInputIsOver) {
+            console.log("voice over, input: ", inputText);
+            setVoiceInputIsOver(false);
+            submitResponseBtnEvent(currentResponseId);
+        }
+    }, [voiceInputIsOver]);
+
+    const toggleRecording = () => {
+        if (recognizing) {
+            stopRecording();
+        } else {
+            startRecording();
+        }
+    };
+
+    const stopRecording = () => {
+        ExpoSpeechRecognitionModule.stop()
+    };
+
+    useSpeechRecognitionEvent("start", () => {
+        setRecognizing(true);
+    });
+
+    useSpeechRecognitionEvent("end", () => {
+        setRecognizing(false);
+        setVoiceInputIsOver(true);
+    });
+
+    useSpeechRecognitionEvent("result", (event: any) => {
+        setInputText(event.results[0]?.transcript);
+        window.clearTimeout(timeoutId);
+        if (event.isFinal) {
+            setTimeoutId(window.setTimeout(stopRecording, 2000));
+        }
+    });
+
+    useSpeechRecognitionEvent("error", (event: any) => {
+        console.log("error code:", event.error, "error messsage:", event.message);
+    });
+
+    const startRecording = async () => {
+        const result = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
+        if (!result.granted) {
+            console.warn("Permissions not granted", result);
+            return;
+        }
+        // Start speech recognition
+        ExpoSpeechRecognitionModule.start({
+            lang: "en-US",
+            interimResults: true,
+            maxAlternatives: 1,
+            continuous: true,
+            requiresOnDeviceRecognition: false,
+            addsPunctuation: true,
+            contextualStrings: ["Carlsen", "Nepomniachtchi", "Praggnanandhaa"],
         });
-        setResponses(updatedResponses);
+    };
+
+    // Place function to play/pause text to speech here
+    const playBtnEvent = async (response: Response) => {
+        if (await tts.isSpeaking()) {
+            await tts.stop();
+        }
+        await tts.speak(response.text, {});
     }
 
-    // const micBtnEvent = () => {
-    //     if(listening){
-    //         setlistening(false);
-
-    //     } else{
-    //         setlistening(true);
-    //     }
-        
-    // }
-
-    const record = () => {
-        handleSTT();
-
-
-    }
-
-    const submitResponseBtnEvent = (id: string) => {
+    const submitResponseBtnEvent = async (id: string) => {
         const updatedResponses = responses.map(response => {
             if (response.id === id) {
-                const newResponse = response;
-                newResponse.text = inputText;
-                newResponse.editing = false;
-                return newResponse;
-            } else {
-                return response;
+                response.text = inputText;
+                response.editing = false;
+                response.mostCurrent = false;
             }
+            return response;
         });
-        setResponses(updatedResponses);
+
+        let narratorResponse = await storyGen?.continueStory({
+            sentiment: "",
+            userResponse: inputText
+        });
+
+        if (narratorResponse === undefined) {
+            console.error("Failed to generate next story part.");
+            return;
+        }
+
+        const userResponse = new UserResponse("", true);
+        setCurrentResponseId(userResponse.id);
+        setInputText("");
+        setResponses([...updatedResponses, new NarratorResponse(narratorResponse), userResponse]);
+
+        if (await tts.isSpeaking()) {
+            await tts.stop();
+        }
+        
+        await tts.speak(narratorResponse, {});
     }
 
     
@@ -131,7 +202,6 @@ export default function StoryPage() {
             }
         });
         setResponses(updatedResponses);
-
     }
     
     const backBtnEvent = () => {
@@ -149,110 +219,46 @@ export default function StoryPage() {
             response = new UserResponse(text);
         }
         return response;
-
-
     }
 
-
-
-    const stopRecording = () => {
-        ExpoSpeechRecognitionModule.stop()
-    }
-
-    useSpeechRecognitionEvent("start", () => {
-        setRecognizing(true);
-        // console.log("STT Recording Started")
-    })
-    useSpeechRecognitionEvent("end", () => {
-        setRecognizing(false);
-        // console.log("STT END")
-        //console.log(transcript);
-
-        
-        
-
-
-    })
-    useSpeechRecognitionEvent("result", (event: any) => {
-        // console.log("STT RESULT")
-        window.clearTimeout(timeoutID)
-        if (event.isFinal){
-          setTranscript(transcript => {
-            console.log(transcript + event.results[0]?.transcript)
-            submitTranscript(event.results[0]?.transcript);
-            return transcript + event.results[0]?.transcript;
-          });
-          timeoutID = (window.setTimeout(stopRecording, 4000))
-          console.log(timeoutID)
-        }
-        // console.log(event);
-    });
-    useSpeechRecognitionEvent("error", (event: any) => {
-        console.log("error code:", event.error, "error messsage:", event.message);
-    });
-
-    const handleSTT = async () => {
-        const result = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
-        if (!result.granted) {
-            console.warn("Permissions not granted", result);
-            return;
-        }
-        // Start speech recognition
-        ExpoSpeechRecognitionModule.start({
-            lang: "en-US",
-            interimResults: true,
-            maxAlternatives: 1,
-            continuous: true,
-            requiresOnDeviceRecognition: false,
-            addsPunctuation: true,
-            contextualStrings: ["Carlsen", "Nepomniachtchi", "Praggnanandhaa"],
-        });
-    };
-
-
-
-    let storyName: string = storyProps?.title;
     return (
-
         <View style={styles.pageStyle}>
             <Header
                 title={storyProps?.title}></Header>
-            <Text>
-            </Text>
             <View>
-            <Feather style={styles.backIcon} name="arrow-left-circle" size={30} color="white" backgroundColor="transparent" onPress={backBtnEvent} />
+                <Feather style={styles.backIcon} name="arrow-left-circle" size={30} color="white" backgroundColor="transparent" onPress={backBtnEvent} />
 
             </View>
 
             <ScrollView style={styles.scrollStyle} >
                 {responses.map(response => {
                     if (response.type == "U") {
-                        return <UserTextbox
+                        return (
+                            <UserTextbox
+                                key={response.id}
+                                response={response}
+                                setInput={setInputText}
+                                input={inputText}
+                                submitInput={() => submitResponseBtnEvent(response.id)}
+                                editInput={() => editInput(response.id)}
+                                toggleRecording={toggleRecording}
+                            />
+                        );
+                    }
+                    return (
+                        <NarratorTextbox
                             key={response.id}
                             response={response}
-                            setInput={setInputText}
-                            input={inputText}
-                            submitInput={() => submitResponseBtnEvent(response.id)}
-                            editInput={() => editInputBtnEvent(response.id)}
-                            micBtnEvent={() => record()}  />
-
-                    };
-                    return <NarratorTextbox
-                    key={response.id}
-                        response={response}
-                        backBtn={playfromStartBtnEvent}
-                        playBtn={() => playBtnEvent(response.id)}
-                    />;
+                            backBtn={() => playfromStartBtnEvent(response)}
+                            playBtn={() => playBtnEvent(response)}
+                        />
+                    );
 
                 })}
 
                 <View style={styles.hidden}>
                 </View>
             </ScrollView>
-
-
-
-
         </View>
     );
 };
@@ -293,8 +299,3 @@ const styles = StyleSheet.create({
 
 
 });
-
-
-
-
-

@@ -7,6 +7,7 @@ import milestonesData from './milestones.json' with { type: 'json' };
 import introductionData from './introductions.json' with { type: 'json' };
 import goalsData from './goals.json' with { type: 'json' };
 
+import { StoryResponseType } from "@/types/Story";
 import * as Storage from "./storage";
 
 // import { createInterface } from 'readline'; //for testing with user input
@@ -27,29 +28,30 @@ export class StoryGenerator {
         this.inference = new HfInference(HF_ACCESS_TOKEN);
     }
 
-    // Will return an intro if it is a new story, otherwise returns nothing
-    async initialize() {
-        const story = await Storage.getCurrentStory();
-
-        if (story.responses.length <= 0) { // if the story is new, insert the introduction
-            await Storage.addStoryResponse(Storage.StoryResponseType.NARRATOR, this.introduction);
-            return this.introduction;
-        }
-    }
-
     async generateText(prompt){
         try{
             let result = "";
-            //Use the model
-            for await (const chunk of this.inference.chatCompletionStream({
+
+            let query = await this.inference.chatCompletion({
                 model: "microsoft/Phi-3-mini-4k-instruct",
                 messages: [{ role: "user", content: prompt }],
                 max_tokens: 500,
                 bad_words_ids: [[50256]]  //Prevents the end-of-text token from cutting it off
-            })) {
-                // Append each chunk's content to the result
-                result += chunk.choices[0]?.delta?.content || "";
-            }
+            });
+
+            result = query.choices[0].message.content;
+
+            // console.log(something.choices[0].message);
+            //Use the model
+            // for await (const chunk of this.inference.chatCompletion({
+            //     model: "microsoft/Phi-3-mini-4k-instruct",
+            //     messages: [{ role: "user", content: prompt }],
+            //     max_tokens: 500,
+            //     bad_words_ids: [[50256]]  //Prevents the end-of-text token from cutting it off
+            // })) {
+            //     // Append each chunk's content to the result
+            //     result += chunk.choices[0]?.delta?.content || "";
+            // }
             // Log the full result after all chunks are processed
             console.log("Generated story part:", result);
             return result;
@@ -61,16 +63,29 @@ export class StoryGenerator {
     async generateParsedText(prompt){
         try{
             let result = "";
-            //Use the model
-            for await (const chunk of this.inference.chatCompletionStream({
+
+            let query = await this.inference.chatCompletion({
                 model: "microsoft/Phi-3-mini-4k-instruct",
                 messages: [{ role: "user", content: prompt }],
                 max_tokens: 500,
                 bad_words_ids: [[50256]]  //Prevents the end-of-text token from cutting it off
-            })) {
-                // Append each chunk's content to the result
-                result += chunk.choices[0]?.delta?.content || "";
-            }
+            });
+
+            result = query.choices[0].message.content;
+
+
+            
+            //Use the model
+            // for await (const chunk of this.inference.chatCompletionStream({
+            //     model: "microsoft/Phi-3-mini-4k-instruct",
+            //     messages: [{ role: "user", content: prompt }],
+            //     max_tokens: 500,
+            //     bad_words_ids: [[50256]]  //Prevents the end-of-text token from cutting it off
+            // })) {
+            //     // Append each chunk's content to the result
+            //     result += chunk.choices[0]?.delta?.content || "";
+            // }
+            console.log("generate parsed text", result);
             // Log the full result after all chunks are processed
             //console.log("Generated story part:", result);
 
@@ -112,7 +127,7 @@ export class StoryGenerator {
 
     async continueStory({ userResponse, sentiment}){ //Generate next part of the story
         // Store the user response
-        await Storage.addStoryResponse(Storage.StoryResponseType.USER, userResponse);
+        await Storage.addStoryResponse(StoryResponseType.USER, userResponse);
         
         const context = this.memoryRetrieval({
             userResponse,
@@ -228,7 +243,9 @@ export class StoryGenerator {
         const result = await this.generateParsedText(prompt);
         const memoryStreamFragments = await this.populateMemoryStream(result);
 
-        const responseId = await Storage.addStoryResponse(Storage.StoryResponseType.NARRATOR, result);
+        console.log("result: ", result);
+
+        const responseId = await Storage.addStoryResponse(StoryResponseType.NARRATOR, result);
 
         // if we fail to parse the memory stream, ignore it and keep the story moving.
         if (!memoryStreamFragments) {

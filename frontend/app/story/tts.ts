@@ -17,11 +17,17 @@ interface TTSProvider {
 }
 
 class ServerTTS implements TTSProvider {
-  private readonly maxTokenLength = 100; // TODO: actually check how long the max token length is
+  private readonly maxTokenLength = 500; // TODO: actually check how long the max token length is
   private isPlaying = false;
   private sound: ExpoAudio.Sound | null = null;
 
   private static async fetchAudio(text: string) {
+
+    if (process.env.EXPO_PUBLIC_SERVER_HOST === undefined) {
+      console.error("[tts::ServerTTS] EXPO_PUBLIC_SERVER_HOST has not been set, cannot find server.");
+      throw new Error("EXPO_PUBLIC_SERVER_HOST has not been set");
+    }
+    
     const response = await fetch(`${process.env.EXPO_PUBLIC_SERVER_HOST}/api/tts`, {
       method: "POST",
       headers: {

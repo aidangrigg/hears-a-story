@@ -1,46 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Story, StoryGenre, StoryLength, StoryResponseType, } from '@/types/Story';
+import { v4 as uuidv4 } from 'uuid';
 
-export enum StoryResponseType {
-  NARRATOR,
-  USER
-}
-
-type StoryResponse = {
-  response_id: string;
-  type: StoryResponseType;
-  text: string;
-}
-
-type MemoryStreamFragment = {
-  response_id: string;
-  observation: string;
-  location: string;
-}
-
-export enum StoryGenre {
-  CRIME = "crime",
-  SCIFI = "sci-fi",
-  FANTASY = "fantasy",
-  MYSTERY = "mystery",
-}
-
-export enum StoryLength {
-  SHORT = "short",
-  MEDIUM = "medium",
-  LONG = "long"
-}
-
-type Story = {
-  id: string;
-  dateCreated: Date;
-  genre: StoryGenre;
-  length: StoryLength;
-  responses: StoryResponse[];
-  memoryStream: MemoryStreamFragment[];
-  milestoneIndex: number;
-  promptsSinceLastMilestone: number;
-  isFinished: boolean;
-}
+import introductions from "./introductions.json";
 
 const CURRENT_STORY_KEY = "current_story";
 
@@ -85,17 +47,25 @@ export async function getAllStories(): Promise<Story[]> {
  * to the newly created story.
  * Returns the created story id.
  */
-export async function createStory(genre: StoryGenre, length: StoryLength, isCurrent = true): Promise<string> {
+export async function createStory(title: string, genre: StoryGenre, length: StoryLength, isCurrent = true, allowAdultContent = false): Promise<string> {    
+  let introduction = introductions[genre];
+
   let story: Story = {
-    id: crypto.randomUUID(),
+    id: uuidv4(),
     dateCreated: new Date(),
     genre: genre,
     length: length,
-    responses: [],
+    responses: [{
+      response_id: uuidv4(),
+      text: introduction,
+      type: StoryResponseType.NARRATOR
+    }],
     memoryStream: [],
     milestoneIndex: 1,
     promptsSinceLastMilestone: 1,
-    isFinished: false
+    isFinished: false,
+    allowAdultContent,
+    title
   };
 
   await AsyncStorage.setItem(storyKey(story.id), JSON.stringify(story));
@@ -144,7 +114,7 @@ export async function addStoryResponse(type: StoryResponseType, text: string) {
   }
 
   let story = maybeCurrentStory;
-  let response = { response_id: crypto.randomUUID(), type, text };
+  let response = { response_id: uuidv4(), type, text };
 
   story.responses.push(response);
   setStory(story.id, story);
