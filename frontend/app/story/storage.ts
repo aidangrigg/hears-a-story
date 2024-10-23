@@ -43,11 +43,33 @@ export async function getAllStories(): Promise<Story[]> {
 }
 
 /**
+ * Deletes all stored stories.
+ */
+export async function deleteAllStories(): Promise<void> {
+  let keys = await AsyncStorage.getAllKeys();
+  let storyKeys = keys.filter((key) => key.startsWith("story:"));
+
+  await AsyncStorage.multiRemove(storyKeys);
+  await setCurrentStory("");
+}
+
+/**
+ * Deletes the story corresponding id passed in.
+ * If the story is the current story, will also set the current story to be empty.
+ */
+export async function deleteStory(id: string): Promise<void> {
+  if (await getCurrentStoryId() === id) {
+    await setCurrentStory("");
+  }
+  await AsyncStorage.removeItem(storyKey(id));
+}
+
+/**
  * Creates a new story based on passed in parameters. If isCurrent is true, updates the current story
  * to the newly created story.
  * Returns the created story id.
  */
-export async function createStory(title: string, genre: StoryGenre, length: StoryLength, isCurrent = true, allowAdultContent = false): Promise<string> {    
+export async function createStory(title: string, genre: StoryGenre, length: StoryLength, isCurrent = true, allowAdultContent = false): Promise<string> {
   let introduction = introductions[genre];
 
   let story: Story = {
