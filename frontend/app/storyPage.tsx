@@ -223,7 +223,8 @@ export default function StoryPage() {
     return (
         <View style={styles.pageStyle}>
             <Header
-                title={storyProps?.title}></Header>
+                title={storyProps?.title}
+                showBackButton={true}></Header>
             <View>
                 <Feather style={styles.backIcon} name="arrow-left-circle" size={30} color="white" backgroundColor="transparent" onPress={backBtnEvent} />
 
