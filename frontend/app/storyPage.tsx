@@ -53,14 +53,14 @@ export default function StoryPage() {
                     case StoryResponseType.NARRATOR:
                         return new NarratorResponse(response.text);
                     case StoryResponseType.USER:
-                        return new UserResponse(response.text, false);
+                        return new UserResponse(response.text);
                 }
             });
 
             if (story.isFinished) {
                 setResponses(loadedResponses);
             } else {
-                const userResponse = new UserResponse("", true);
+                const userResponse = new UserResponse("");
                 setCurrentResponseId(userResponse.id);
                 setResponses([...loadedResponses, userResponse]);
             }
@@ -143,7 +143,6 @@ export default function StoryPage() {
             if (response.id === id) {
                 response.text = inputText;
                 response.editing = false;
-                response.mostCurrent = false;
             }
             return response;
         });
@@ -158,7 +157,7 @@ export default function StoryPage() {
             return;
         }
 
-        const userResponse = new UserResponse("", true);
+        const userResponse = new UserResponse("");
         setCurrentResponseId(userResponse.id);
         setInputText("");
         setResponses([...updatedResponses, new NarratorResponse(narratorResponse), userResponse]);
@@ -240,7 +239,6 @@ export default function StoryPage() {
                                 setInput={setInputText}
                                 input={inputText}
                                 submitInput={() => submitResponseBtnEvent(response.id)}
-                                editInput={() => editInput(response.id)}
                                 toggleRecording={toggleRecording}
                             />
                         );
