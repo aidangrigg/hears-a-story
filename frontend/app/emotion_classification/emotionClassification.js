@@ -1,5 +1,6 @@
 import { HfInference } from "@huggingface/inference"
 import { HF_ACCESS_TOKEN } from './codes.js';
+import { Emotions } from "@/types/Story";
 const hf = new HfInference(HF_ACCESS_TOKEN)
 
 export async function emotionClassification(sentence){
@@ -9,7 +10,7 @@ export async function emotionClassification(sentence){
       sentence
     ],
     parameters: { 
-        candidate_labels: ['Happy','Sad','Angry','Impressed','Anxious','Confident','Guilty','Surprised','Annoyed','Scared'] 
+      candidate_labels: Object.values(Emotions)
     }
   })
 
