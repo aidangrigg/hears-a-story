@@ -23,7 +23,7 @@ export class StoryGenerator {
         const length = story.length;
 
         this.milestones = milestonesData[genre][length]; // Set milestones based on genre and length
-        this.endings = endingsData[genre]; // Set possible endings based on genre
+        this.endings = JSON.stringify(endingsData[genre]); // Set possible endings based on genre
         this.introduction = introductionData[genre]; // Set introduction based on genre
         this.goal = goalsData[genre]; // Set introduction based on genre
 
@@ -131,6 +131,8 @@ export class StoryGenerator {
         // Store the user response
         await Storage.addStoryResponse(StoryResponseType.USER, userResponse);
 
+        let story = await Storage.getCurrentStory();
+
         // Try to get users sentiment. If something fails, fallback to happy
         let sentiment = Emotions.HAPPY;
         try {
@@ -140,14 +142,19 @@ export class StoryGenerator {
             console.warn("Failed to get users sentiment, Error: ", e);
         }
 
-        const context = this.memoryRetrieval({
+        const context = await this.memoryRetrieval({
             userResponse,
-            sentiment
+            sentiment,
+            memoryStream: JSON.stringify(story.memoryStream.map((s) => {
+                return {
+                    observation: s.observation,
+                    location: s.location,
+                }
+            }))
         });
         
         console.log('Continuing the story...');
         let prompt = ``;
-	let story = await Storage.getCurrentStory();
 	const nextMilestone = this.milestones[story.milestoneIndex];
 
 	if (story === null) {
