@@ -5,7 +5,7 @@ import * as Storage from "@/app/story/storage";
 
   export interface LibraryContextProps {
     library: Story[];
-    addStory: (newStory: Story) => void;
+    addStory: (title: string, genre: StoryGenre, length: StoryLength, allowAdultContent: boolean) => void;
     removeStory: (key: string) => void;
     refresh: () => void;
   }
@@ -20,8 +20,8 @@ import * as Storage from "@/app/story/storage";
 export const LibraryProvider = ({ children }: any) => {
   const [library, updateLibrary] = useState<Story[]>([]);
   
-    const addStory = (newStory: Story) => {
-      updateLibrary([...library, newStory]);
+    const addStory = (title: string, genre: StoryGenre, length: StoryLength, allowAdultContent: boolean) => {
+      Storage.createStory(title, genre, length, allowAdultContent)
       refresh();
     };
 
