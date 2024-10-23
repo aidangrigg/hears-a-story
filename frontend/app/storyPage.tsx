@@ -53,7 +53,7 @@ export default function StoryPage() {
                     case StoryResponseType.NARRATOR:
                         return new NarratorResponse(response.text);
                     case StoryResponseType.USER:
-                        return new UserResponse(response.text);
+                        return new UserResponse(response.text, false);
                 }
             });
 
