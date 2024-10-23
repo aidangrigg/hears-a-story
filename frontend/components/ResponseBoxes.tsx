@@ -13,7 +13,6 @@ export class Response {
     id: string;
     text: string;
     type: string;
-    mostCurrent: boolean;
     editing: boolean;
     playing: boolean;
 
@@ -21,7 +20,6 @@ export class Response {
         this.id = uuidv4();
         this.text = "NULL";
         this.type = "NULL";
-        this.mostCurrent = false;
         this.editing = false;
         this.playing = false;
     }
@@ -32,7 +30,6 @@ export class NarratorResponse extends Response {
         super();
         this.text = text;
         this.type = 'N';
-        this.mostCurrent = false;
         this.playing = false;
         this.editing = false;
     }
@@ -40,11 +37,10 @@ export class NarratorResponse extends Response {
 }
 
 export class UserResponse extends Response {
-    constructor(text: string, mostCurrent = true) {
+    constructor(text: string) {
         super();
         this.text = text;
         this.type = 'U';
-        this.mostCurrent = mostCurrent;
         this.editing = true;
         this.playing = false;
     }
@@ -91,12 +87,11 @@ interface UserTextboxProps {
     submitInput: any;
     input: string;
     setInput: any;
-    editInput: any;
     toggleRecording: () => void;
 }
 
-export function UserTextbox({ response, submitInput, input, setInput, editInput, toggleRecording }: UserTextboxProps) {
-    if (response.mostCurrent == true && response.editing == true) {
+export function UserTextbox({ response, submitInput, input, setInput, toggleRecording }: UserTextboxProps) {
+    if (response.editing == true) {
         return (
             <View style={styles.userBox}>
                 <Ionicons style={styles.userIcon} name="person-sharp" size={30} color="white" />
@@ -115,15 +110,7 @@ export function UserTextbox({ response, submitInput, input, setInput, editInput,
             </View>
 
         )
-    } else if (response.mostCurrent == true) {
-        return (
-            <View style={styles.userBox}>
-                <Ionicons style={styles.userIcon} name="person-sharp" size={30} color="white" />
-                <Text style={styles.userText}>{response.text}</Text>
-                <AntDesign.Button style={styles.RemoveIcon} name="edit" size={24} color="white" backgroundColor='transparent' onPress={editInput}> Edit Response </AntDesign.Button>
-            </View>
-        )
-    }
+    } 
     return (
         <View style={styles.userBox}>
             <Ionicons style={styles.userIcon} name="person-sharp" size={30} color="white" />
