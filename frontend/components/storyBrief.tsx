@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
       borderRadius: 20,
       // paddingVertical: 10,
       padding: 35,
-      backgroundColor: "white",
+      backgroundColor: "#f1f4f9",
       // alignItems: 'center',
       shadowColor: '#000',
       shadowOffset: {
@@ -211,6 +211,7 @@ const styles = StyleSheet.create({
       textAlign: 'center',
     },
     modalTitle: {
+      // color: "#192637",
       fontWeight: 'bold',
       fontFamily: "Roboto",
       fontSize: 18,
