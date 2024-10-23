@@ -7,8 +7,10 @@ import milestonesData from './milestones.json' with { type: 'json' };
 import introductionData from './introductions.json' with { type: 'json' };
 import goalsData from './goals.json' with { type: 'json' };
 
-import { StoryResponseType } from "@/types/Story";
+import { Emotions, StoryResponseType } from "@/types/Story";
 import * as Storage from "./storage";
+
+import { emotionClassification } from "../emotion_classification/emotionClassification";
 
 // import { createInterface } from 'readline'; //for testing with user input
 
@@ -125,10 +127,19 @@ export class StoryGenerator {
         return await this.generateText(prompt);
     }
 
-    async continueStory({ userResponse, sentiment}){ //Generate next part of the story
+    async continueStory({ userResponse }){ //Generate next part of the story
         // Store the user response
         await Storage.addStoryResponse(StoryResponseType.USER, userResponse);
-        
+
+        // Try to get users sentiment. If something fails, fallback to happy
+        let sentiment = Emotions.HAPPY;
+        try {
+            const sentimentQuery = await emotionClassification(userResponse);
+            sentiment = sentimentQuery?.labels?.[0]
+        } catch (e) {
+            console.warn("Failed to get users sentiment, Error: ", e);
+        }
+
         const context = this.memoryRetrieval({
             userResponse,
             sentiment
@@ -237,7 +248,7 @@ export class StoryGenerator {
             story.promptsSinceLastMilestone = 0;
             story.milestoneIndex++;
         }
-        // update all the indexes
+        // Update all the indexes
         await Storage.setStory(story.id, story);
 	
         const result = await this.generateParsedText(prompt);
@@ -259,6 +270,8 @@ export class StoryGenerator {
                 fragment.location
             );
         }
+
+        await Storage.addEmotionStreamFragment(sentiment);
         
         return result;
     }

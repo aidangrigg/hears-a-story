@@ -28,7 +28,8 @@ export default function CreateStory() {
         <View
             style={styles.container}>
             <Header
-                title="New Story"></Header>
+                title="New Story"
+                showBackButton={true}></Header>
             <ScrollView 
                 style={styles.scrollContainer}
                 contentContainerStyle={styles.scrollContent}

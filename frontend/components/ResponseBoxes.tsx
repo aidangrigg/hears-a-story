@@ -37,11 +37,11 @@ export class NarratorResponse extends Response {
 }
 
 export class UserResponse extends Response {
-    constructor(text: string) {
+    constructor(text: string, editing = true) {
         super();
         this.text = text;
         this.type = 'U';
-        this.editing = true;
+        this.editing = editing;
         this.playing = false;
     }
 }

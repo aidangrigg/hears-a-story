@@ -33,7 +33,7 @@ export default function Index() {
         backgroundColor: "#192637",
       }}
     >
-      <Header title="Library"></Header>
+      <Header title="Library" showBackButton={false}></Header>
       
       <ScrollView 
         style={{ width: "100%"}}>

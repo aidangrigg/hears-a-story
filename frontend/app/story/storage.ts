@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Story, StoryGenre, StoryLength, StoryResponseType, } from '@/types/Story';
+import { Emotions, Story, StoryGenre, StoryLength, StoryResponseType, } from '@/types/Story';
 import { v4 as uuidv4 } from 'uuid';
 
 import introductions from "./introductions.json";
@@ -43,11 +43,33 @@ export async function getAllStories(): Promise<Story[]> {
 }
 
 /**
+ * Deletes all stored stories.
+ */
+export async function deleteAllStories(): Promise<void> {
+  let keys = await AsyncStorage.getAllKeys();
+  let storyKeys = keys.filter((key) => key.startsWith("story:"));
+
+  await AsyncStorage.multiRemove(storyKeys);
+  await setCurrentStory("");
+}
+
+/**
+ * Deletes the story corresponding id passed in.
+ * If the story is the current story, will also set the current story to be empty.
+ */
+export async function deleteStory(id: string): Promise<void> {
+  if (await getCurrentStoryId() === id) {
+    await setCurrentStory("");
+  }
+  await AsyncStorage.removeItem(storyKey(id));
+}
+
+/**
  * Creates a new story based on passed in parameters. If isCurrent is true, updates the current story
  * to the newly created story.
  * Returns the created story id.
  */
-export async function createStory(title: string, genre: StoryGenre, length: StoryLength, isCurrent = true, allowAdultContent = false): Promise<string> {    
+export async function createStory(title: string, genre: StoryGenre, length: StoryLength, isCurrent = true, allowAdultContent = false): Promise<string> {
   let introduction = introductions[genre];
 
   let story: Story = {
@@ -65,7 +87,8 @@ export async function createStory(title: string, genre: StoryGenre, length: Stor
     promptsSinceLastMilestone: 1,
     isFinished: false,
     allowAdultContent,
-    title
+    title,
+    emotionStream: []
   };
 
   await AsyncStorage.setItem(storyKey(story.id), JSON.stringify(story));
@@ -97,6 +120,23 @@ export async function addMemoryStreamFragment(response_id: string, observation: 
   let story = maybeCurrentStory;
 
   story.memoryStream.push({ response_id, observation, location });
+  setStory(story.id, story);
+}
+
+/**
+ * Adds an emotion to the current stories emotion stream.
+ */
+export async function addEmotionStreamFragment(e: Emotions) {
+  let maybeCurrentStory = await getCurrentStory();
+
+  if (maybeCurrentStory === null) {
+    console.error("[storage::addEmotion] Tried to add to non-existent story's emotion stream!");
+    return;
+  }
+
+  let story = maybeCurrentStory;
+
+  story.emotionStream.push(e);
   setStory(story.id, story);
 }
 

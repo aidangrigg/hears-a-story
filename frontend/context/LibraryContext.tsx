@@ -21,8 +21,7 @@ export const LibraryProvider = ({ children }: any) => {
   const [library, updateLibrary] = useState<Story[]>([]);
   
     const addStory = (title: string, genre: StoryGenre, length: StoryLength, allowAdultContent: boolean) => {
-      Storage.createStory(title, genre, length, allowAdultContent)
-      refresh();
+      Storage.createStory(title, genre, length, allowAdultContent).then(() => refresh());
     };
 
     const refresh = () => {
@@ -32,7 +31,7 @@ export const LibraryProvider = ({ children }: any) => {
     };
 
     const removeStory = (key: string) => {
-      updateLibrary(library.filter(story => story.id !== key));
+      Storage.deleteStory(key).then(() => refresh());
     };
 
     return (
