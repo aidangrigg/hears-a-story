@@ -1,14 +1,18 @@
 import { View, Image, Text, Pressable, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { StyleSheet } from 'react-native';
-              
+import { useContext } from "react";
+
+import { LibraryContext } from "@/context/LibraryContext";
 import Feather from '@expo/vector-icons/Feather';
 import type { Story } from "@/types/Story";
 import { capitalize } from "@/utils/formatting";
 import * as Storage from "@/app/story/storage";
 
-export default function Story({storyProps} : {storyProps: Story}) {
-  
+import { showMessage, hideMessage } from "react-native-flash-message";
+
+export default function Story({storyProps} : {storyProps: any}) {
+  const { removeStory } = useContext(LibraryContext);
   const navigation: any = useNavigation();
   
     return (
@@ -43,12 +47,22 @@ export default function Story({storyProps} : {storyProps: Story}) {
 
           <Feather.Button
             style={styles.buttonContainer}
-            name="more-vertical"
+            name="trash-2"
             size={41}
             backgroundColor={"#192637"} 
             iconStyle={styles.icons}
             borderRadius={100}
-            onPress={() => Alert.alert("Settings")}>
+            onPress={() => {
+              showMessage({
+                message: "Story Deleted",
+                description: `${storyProps.title} has been successfully deleted.`,
+                type: "warning",
+                icon: "warning"
+              });
+
+              removeStory(storyProps.id)
+            }
+            }>
           </Feather.Button>
         
       </View>
@@ -68,7 +82,7 @@ const styles = StyleSheet.create({
       height: "100%",
     },
     textContainer: {
-        width: "40%",
+        width: "39%",
         flexDirection: "column",
         marginHorizontal: "5%"
     },

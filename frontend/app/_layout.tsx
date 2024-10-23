@@ -15,6 +15,8 @@ import Loading from './loading';
 import CreateStory from './CreateStory';
 import StoryPage from './storyPage';
 
+import FlashMessage from "react-native-flash-message";
+
 // Stylesheet
 import Styles from './Styles';
 
@@ -25,6 +27,7 @@ export default function RootLayout() {
   return (
     
     <LibraryProvider>
+      <FlashMessage position="bottom" />
       {/* <StatusBar barStyle="light-content" backgroundColor="#6a51ae" />  */}
       <NavigationContainer independent={true} >
         <Stack.Navigator initialRouteName="Library" screenOptions={{ headerShown: false }} >
