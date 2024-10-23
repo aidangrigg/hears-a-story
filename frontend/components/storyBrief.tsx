@@ -17,12 +17,20 @@ export default function Story({storyProps} : {storyProps: any}) {
   const navigation: any = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
 
+  let imgSrc: any
+  storyProps.genre == "crime" ? imgSrc = require("@/assets/storyImages/crime.png") : 
+  storyProps.genre == "fantasy" ? imgSrc = require("@/assets/storyImages/fantasy.png") : 
+  storyProps.genre == "sci-fi" ? imgSrc = require("@/assets/storyImages/scifi.png") : 
+  storyProps.genre == "mystery" ? imgSrc = require("@/assets/storyImages/mystery.png") : 
+  imgSrc = require("@/assets/storyImages/default.png")
+  
     return (
         <View 
             style={styles.content}>
           <Image 
             style={styles.icon}
-            source={require("@/assets/images/react-logo.png")}></Image>
+            source={imgSrc}
+            ></Image>
             
           <View
             style={styles.textContainer}>
@@ -112,6 +120,7 @@ const styles = StyleSheet.create({
     icon: {
       width: "22.5%",
       height: "100%",
+      borderRadius: 10
     },
     textContainer: {
         width: "39%",
