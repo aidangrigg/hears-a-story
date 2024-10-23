@@ -10,6 +10,7 @@ import * as Storage from "./story/storage";
 import { StoryGenerator } from "./story/storyManager";
 import { StoryResponseType } from "@/types/Story";
 import { TTS } from "./story/tts";
+import { BarChart } from "react-native-gifted-charts";
 
 export default function StoryPage() {
     const navigation: any = useNavigation();
@@ -220,6 +221,14 @@ export default function StoryPage() {
         return response;
     }
 
+    const chart_data = [
+        {"label": "Happy", "value": 1},
+        {"label": "Sad", "value": 2},
+        {"label": "Angry", "value": 4},
+        {"label": "Impressed", "value": 7},
+        {"label": "Anxious", "value": 5}
+    ]
+
     return (
         <View style={styles.pageStyle}>
             <Header
@@ -253,6 +262,12 @@ export default function StoryPage() {
                     );
 
                 })}
+
+                <View style={{width: '100%', backgroundColor:"lightgray", margin: '10px'}}>
+                    <BarChart
+                        data={chart_data} frontColor="green" initialSpacing={5} spacing={40}
+                    />
+                </View>
 
                 <View style={styles.hidden}>
                 </View>
