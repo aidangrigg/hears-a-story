@@ -8,7 +8,7 @@ import Feather from '@expo/vector-icons/Feather';
 import { Header } from "@/components/header";
 import * as Storage from "./story/storage";
 import { StoryGenerator } from "./story/storyManager";
-import { StoryResponseType } from "@/types/Story";
+import { StoryResponseType, Emotions } from "@/types/Story";
 import { TTS } from "./story/tts";
 import { BarChart } from "react-native-gifted-charts";
 
@@ -30,7 +30,8 @@ export default function StoryPage() {
     // const [transcript, setTranscript] = useState("");
     const [timeoutId, setTimeoutId] = useState<number>();
     const [isFinished, setIsFinished] = useState(false);
-
+    const [chartData, setChartData] = useState<Array<any>>([]);
+    const [transcript, setTranscript] = useState("")
     // Place function to play from beggining text to speech here
     const playfromStartBtnEvent = async (response: Response) => {
         if (await tts.isSpeaking()) {
@@ -49,6 +50,27 @@ export default function StoryPage() {
             }
 
             setIsFinished(story.isFinished)
+
+            let emotionCount: { [key: string] : number; } = {};
+            for (const emote in story.emotionStream){
+                emotionCount[story.emotionStream[emote]] = emotionCount[story.emotionStream[emote]] ? emotionCount[story.emotionStream[emote]] + 1 : 1;
+            }
+
+            // console.log("Emotion Count 1: " + JSON.stringify(emotionCount))
+
+            // Sort by largest and reduce to top 5
+            emotionCount = Object.entries(emotionCount).sort(([, a], [, b]) => b - a).reduce((r, [k, v]) => ({ ...r, [k]: v }), {});
+                  
+
+            // console.log("Emotion Count 2: " + JSON.stringify(emotionCount))
+
+            for (const [key, value] of Object.entries(emotionCount).slice(0,5)) {
+                setChartData(chartData => {                    
+                    return [...chartData, {"label": key, "value": value, "labelTextStyle": {fontSize: 11, fontWeight:"bold"}}]
+                })
+            }
+
+            // console.log("chartData: " + chartData)
 
             let storyGen = new StoryGenerator(story);
 
@@ -106,9 +128,13 @@ export default function StoryPage() {
     });
 
     useSpeechRecognitionEvent("result", (event: any) => {
-        setInputText(event.results[0]?.transcript);
         window.clearTimeout(timeoutId);
         if (event.isFinal) {
+            setTranscript(transcript => {
+                // console.log(transcript + event.results[0]?.transcript)
+                setInputText(transcript + event.results[0]?.transcript);
+                return transcript + event.results[0]?.transcript;
+            });
             setTimeoutId(window.setTimeout(stopRecording, 2000));
         }
     });
@@ -225,14 +251,6 @@ export default function StoryPage() {
         return response;
     }
 
-    const chart_data = [
-        {"label": "Happy", "value": 1},
-        {"label": "Sad", "value": 2},
-        {"label": "Angry", "value": 4},
-        {"label": "Impressed", "value": 7},
-        {"label": "Anxious", "value": 5}
-    ]
-
     return (
         <View style={styles.pageStyle}>
             <Header
@@ -277,7 +295,7 @@ export default function StoryPage() {
                 {   isFinished &&
                     <View style={styles.graph}>
                     <BarChart
-                        data={chart_data} frontColor="green" initialSpacing={5} spacing={39}
+                        data={chartData} frontColor="green" initialSpacing={5} spacing={39} maxValue={chartData[0]["value"]} stepValue={1} noOfSections={chartData[0]["value"]}
                     />
                     </View>
                 }   
@@ -327,8 +345,4 @@ const styles = StyleSheet.create({
         paddingRight: 12,
         overflow: "hidden",
     },
-
-
-
-
 });
