@@ -27,8 +27,7 @@ export default function StoryPage() {
     const [voiceInputIsOver, setVoiceInputIsOver] = useState(false);
     const [currentResponseId, setCurrentResponseId] = useState("");
 
-    // const [transcript, setTranscript] = useState("");
-    const [timeoutId, setTimeoutId] = useState<number>();
+    let timeoutId = 0;
     const [isFinished, setIsFinished] = useState(false);
     const [chartData, setChartData] = useState<Array<any>>([]);
     const [transcript, setTranscript] = useState("")
@@ -129,13 +128,18 @@ export default function StoryPage() {
 
     useSpeechRecognitionEvent("result", (event: any) => {
         window.clearTimeout(timeoutId);
+        setTranscript(transcript => {
+            // console.log(transcript + event.results[0]?.transcript)
+            setInputText(transcript + event.results[0]?.transcript);
+            return transcript;
+        });
         if (event.isFinal) {
             setTranscript(transcript => {
                 // console.log(transcript + event.results[0]?.transcript)
                 setInputText(transcript + event.results[0]?.transcript);
                 return transcript + event.results[0]?.transcript;
             });
-            setTimeoutId(window.setTimeout(stopRecording, 2000));
+            timeoutId = window.setTimeout(stopRecording, 3000);
         }
     });
 
