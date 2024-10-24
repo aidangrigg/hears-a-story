@@ -29,6 +29,7 @@ export default function StoryPage() {
 
     // const [transcript, setTranscript] = useState("");
     const [timeoutId, setTimeoutId] = useState<number>();
+    const [isFinished, setIsFinished] = useState(false);
 
     // Place function to play from beggining text to speech here
     const playfromStartBtnEvent = async (response: Response) => {
@@ -47,9 +48,12 @@ export default function StoryPage() {
                 return;
             }
 
+            setIsFinished(story.isFinished)
+
             let storyGen = new StoryGenerator(story);
 
             let loadedResponses = story.responses.flatMap((response) => {
+                console.log(response)
                 switch (response.type) {
                     case StoryResponseType.NARRATOR:
                         return new NarratorResponse(response.text);
@@ -264,11 +268,19 @@ export default function StoryPage() {
 
                 })}
 
-                <View style={{width: '100%', backgroundColor:"lightgray", margin: '10px'}}>
+                {/* 
+                    Utilize storyProps.isfinished to check whether chart should appear !! :) 
+                    Utilize story.responses???? to get emotion count maybe??
+                    Probably ask a front end person how to make my chart not fly off the screen!
+                */}
+                
+                {   isFinished &&
+                    <View style={styles.graph}>
                     <BarChart
-                        data={chart_data} frontColor="green" initialSpacing={5} spacing={40}
+                        data={chart_data} frontColor="green" initialSpacing={5} spacing={39}
                     />
-                </View>
+                    </View>
+                }   
 
                 <View style={styles.hidden}>
                 </View>
@@ -307,6 +319,13 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 180,
         left: 190,
+    },
+    graph: {
+        width: "94%",
+        backgroundColor:"lightgray",
+        margin: 12,
+        paddingRight: 12,
+        overflow: "hidden",
     },
 
 
