@@ -5,7 +5,7 @@ import { Platform } from "react-native";
 
 // TODO: actually add option handling
 type TTSOptions = {
-
+  onEnd?: () => void
 }
 
 interface TTSProvider {
@@ -139,12 +139,16 @@ class NativeTTS implements TTSProvider {
   // this function is called on firefox the tts playback will be cut short.
   // (maybe check if chrome's TTS works better)
   // However, this works fine on android, and IOS does not have a limit to TTS length.
-  private speakRecurse(value: string, iter: IterableIterator<string>) {
+  private speakRecurse(value: string, iter: IterableIterator<string>, options?: TTSOptions) {
     ExpoSpeech.speak(value, {
       onDone: () => {
         const next = iter.next();
         if (!next.done) {
           this.speakRecurse(next.value, iter);
+        } else {
+          if (options?.onEnd) {
+            options?.onEnd();
+          }
         }
       }
     });
@@ -161,7 +165,9 @@ class NativeTTS implements TTSProvider {
       let iter = processedText[Symbol.iterator]();
       this.speakRecurse(iter.next().value, iter);
     } else {
-      ExpoSpeech.speak(text);
+      ExpoSpeech.speak(text, {
+        onDone: options.onEnd
+      });
     }
 
   }
@@ -192,7 +198,7 @@ class NativeTTS implements TTSProvider {
 }
 
 export class TTS {
-  private providers: TTSProvider[] = [new ServerTTS, new NativeTTS]
+  private providers: TTSProvider[] = [new NativeTTS, new ServerTTS]
   private current_provider_index: number = 0;
 
   /**

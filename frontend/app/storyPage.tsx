@@ -31,13 +31,24 @@ export default function StoryPage() {
     const [isFinished, setIsFinished] = useState(false);
     const [chartData, setChartData] = useState<Array<any>>([]);
     const [transcript, setTranscript] = useState("")
+
     // Place function to play from beggining text to speech here
     const playfromStartBtnEvent = async (response: Response) => {
+        await playTTS(response.text, false);
+    }
+
+    const playTTS = async (text: string, enableStt: boolean) => {
         if (await tts.isSpeaking()) {
             await tts.stop();
         }
-        await tts.speak(response.text, {});
-    }
+        await tts.speak(text, {
+            onEnd: () => {
+                if (enableStt) {
+                    startRecording();
+                }
+            }
+        });
+    };
 
     const fetchChartData = async () => {
         let story = await Storage.getCurrentStory();
@@ -175,13 +186,14 @@ export default function StoryPage() {
 
     // Place function to play/pause text to speech here
     const playBtnEvent = async (response: Response) => {
-        if (await tts.isSpeaking()) {
-            await tts.stop();
-        }
-        await tts.speak(response.text, {});
+        await playTTS(response.text, false);
     }
 
     const submitResponseBtnEvent = async (id: string) => {
+        if (inputText === "") {
+            return; // do not submit empty input
+        }
+
         const updatedResponses = responses.map(response => {
             if (response.id === id) {
                 response.text = inputText;
@@ -189,6 +201,7 @@ export default function StoryPage() {
             }
             return response;
         });
+
 
         setResponses([...updatedResponses, new NarratorResponse("") ]);
         
@@ -218,11 +231,7 @@ export default function StoryPage() {
 
         setResponses(newResponses);
 
-        if (await tts.isSpeaking()) {
-            await tts.stop();
-        }
-        
-        await tts.speak(narratorResponse, {});
+        await playTTS(narratorResponse, true);
     }
 
     
