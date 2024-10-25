@@ -1,7 +1,7 @@
 import { View, ScrollView, Alert } from "react-native";
 import { StyleSheet } from 'react-native';
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { NarratorTextbox, UserTextbox, Response, UserResponse, NarratorResponse } from '@/components/ResponseBoxes';
+import { NarratorTextbox, UserTextbox, Response, UserResponse, NarratorResponse, LoadingTextbox } from '@/components/ResponseBoxes';
 import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent, } from "expo-speech-recognition";
 import { useEffect, useState } from 'react';
 import Feather from '@expo/vector-icons/Feather';
@@ -182,6 +182,10 @@ export default function StoryPage() {
             return response;
         });
 
+        setResponses([...updatedResponses, new NarratorResponse("") ]);
+        
+        
+
         let narratorResponse = await storyGen?.continueStory({
             sentiment: "",
             userResponse: inputText
@@ -277,6 +281,10 @@ export default function StoryPage() {
                                 submitInput={() => submitResponseBtnEvent(response.id)}
                                 toggleRecording={toggleRecording}
                             />
+                        );
+                    } else if(response.type == "N" && response.text == "") {
+                        return(
+                            <LoadingTextbox/>
                         );
                     }
                     return (

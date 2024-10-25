@@ -1,4 +1,4 @@
-import { StyleSheet, TextInput  } from 'react-native';
+import { ActivityIndicator, StyleSheet, TextInput  } from 'react-native';
 import { Text, View } from "react-native";
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -78,6 +78,15 @@ export function NarratorTextbox({ response, backBtn, playBtn }: NarratorTextboxP
                 <Entypo.Button style={styles.backIcon} name="controller-jump-to-start" size={20} color="rgba(0, 224, 255, 1)" backgroundColor="transparent" onPress={backBtn} />
                 <Entypo.Button style={styles.playIcon} id="playButton" name="controller-play" size={20} color="rgba(0, 224, 255, 1)" backgroundColor="transparent" onPress={playBtn} />
             </View>
+        </View>
+    );
+};
+
+export function LoadingTextbox() {
+    return (
+        <View style={styles.narratorBox}>
+            <FontAwesome6 style={styles.narratorIcon} name="book-open-reader" size={30} color="rgba(0, 224, 255, 1)" />
+            <ActivityIndicator style={styles.narratorText} size="large" color="rgba(0, 224, 255, 1)" />
         </View>
     );
 };
