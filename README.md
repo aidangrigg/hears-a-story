@@ -2,19 +2,26 @@ Due to the seperation of front-end and back-end improper installation commands c
 
 Here is how to open the front-end of the application WITHOUT bricking anything according to current design of application. 
 
-This will be updated if running the application changes in the future.
 
-1. From the root directory navigate to the frontend folder: 
+RUNNING FRONTEND
+
+1. Create a codes.js file in the frontend/app directory. Add the following code to codes.js (replacing 'insert hugging face access token' with your own token):
+```bash
+ const HF_ACCESS_TOKEN = "<insert hugging face access token>";
+ export { HF_ACCESS_TOKEN };
+```
+  
+2. From the root directory navigate to the frontend folder: 
  ```bash
    cd frontend
    ```
 
-2.  If you haven't already done so, install node package manager: 
+3.  If you haven't already done so, install node package manager: 
  ```bash
    npm install
    ```
 
-3. Run the application using expo: 
+4. Run the application using expo: 
  ```bash
    npx expo start
    ```
