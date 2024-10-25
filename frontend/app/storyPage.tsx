@@ -16,13 +16,13 @@ export default function StoryPage() {
     const navigation: any = useNavigation();
     const route: any = useRoute();
     const { storyProps } = route.params;
-    const tts = new TTS();
 
     const [responses, setResponses] = useState<Response[]>([]);
     const [recognizing, setRecognizing] = useState(false);
 
     const [inputText, setInputText] = useState("");
     const [storyGen, setStoryGen] = useState<StoryGenerator | null>(null);
+    const [tts] = useState(new TTS());
 
     const [voiceInputIsOver, setVoiceInputIsOver] = useState(false);
     const [currentResponseId, setCurrentResponseId] = useState("");
