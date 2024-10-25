@@ -24,8 +24,7 @@ export interface StoryResponse {
 
 export interface MemoryStreamFragment {
   response_id: string;
-  observation: string;
-  location: string;
+  observations: string;
 }
 
 export enum StoryGenre {
