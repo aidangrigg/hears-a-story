@@ -39,6 +39,34 @@ export default function StoryPage() {
         await tts.speak(response.text, {});
     }
 
+    const fetchChartData = async () => {
+        let story = await Storage.getCurrentStory();
+
+        if (story === null) {
+            console.log("story is null");
+            return;
+        }
+
+        let emotionCount: { [key: string]: number; } = {};
+        for (const emote in story.emotionStream) {
+            emotionCount[story.emotionStream[emote]] = emotionCount[story.emotionStream[emote]] ? emotionCount[story.emotionStream[emote]] + 1 : 1;
+        }
+
+        // console.log("Emotion Count 1: " + JSON.stringify(emotionCount))
+
+        // Sort by largest and reduce to top 5
+        emotionCount = Object.entries(emotionCount).sort(([, a], [, b]) => b - a).reduce((r, [k, v]) => ({ ...r, [k]: v }), {});
+
+
+        // console.log("Emotion Count 2: " + JSON.stringify(emotionCount))
+
+        for (const [key, value] of Object.entries(emotionCount).slice(0, 5)) {
+            setChartData(chartData => {
+                return [...chartData, { "label": key, "value": value, "labelTextStyle": { fontSize: 11, fontWeight: "bold" } }]
+            })
+        }
+    };
+
     useEffect(() => {
         const prepStorage = async () => {
             let story = await Storage.getCurrentStory();
@@ -48,33 +76,11 @@ export default function StoryPage() {
                 return;
             }
 
-            setIsFinished(story.isFinished)
-
-            let emotionCount: { [key: string] : number; } = {};
-            for (const emote in story.emotionStream){
-                emotionCount[story.emotionStream[emote]] = emotionCount[story.emotionStream[emote]] ? emotionCount[story.emotionStream[emote]] + 1 : 1;
-            }
-
-            // console.log("Emotion Count 1: " + JSON.stringify(emotionCount))
-
-            // Sort by largest and reduce to top 5
-            emotionCount = Object.entries(emotionCount).sort(([, a], [, b]) => b - a).reduce((r, [k, v]) => ({ ...r, [k]: v }), {});
-                  
-
-            // console.log("Emotion Count 2: " + JSON.stringify(emotionCount))
-
-            for (const [key, value] of Object.entries(emotionCount).slice(0,5)) {
-                setChartData(chartData => {                    
-                    return [...chartData, {"label": key, "value": value, "labelTextStyle": {fontSize: 11, fontWeight:"bold"}}]
-                })
-            }
-
             // console.log("chartData: " + chartData)
 
             let storyGen = new StoryGenerator(story);
 
             let loadedResponses = story.responses.flatMap((response) => {
-                console.log(response)
                 switch (response.type) {
                     case StoryResponseType.NARRATOR:
                         return new NarratorResponse(response.text);
@@ -84,7 +90,9 @@ export default function StoryPage() {
             });
 
             if (story.isFinished) {
+                await fetchChartData(); // chart data must be fetched before isFinished is set to true
                 setResponses(loadedResponses);
+                setIsFinished(true);
             } else {
                 const userResponse = new UserResponse("");
                 setCurrentResponseId(userResponse.id);
@@ -184,9 +192,7 @@ export default function StoryPage() {
 
         setResponses([...updatedResponses, new NarratorResponse("") ]);
         
-        
-
-        let narratorResponse = await storyGen?.continueStory({
+        let { text: narratorResponse, isEnded } = await storyGen?.continueStory({
             sentiment: "",
             userResponse: inputText
         });
@@ -199,7 +205,18 @@ export default function StoryPage() {
         const userResponse = new UserResponse("");
         setCurrentResponseId(userResponse.id);
         setInputText("");
-        setResponses([...updatedResponses, new NarratorResponse(narratorResponse), userResponse]);
+        setTranscript("");
+
+        let newResponses = [...updatedResponses, new NarratorResponse(narratorResponse)];
+
+        if (!isEnded) {
+            newResponses.push(userResponse);
+        } else {
+            await fetchChartData();
+            setIsFinished(true);
+        }
+
+        setResponses(newResponses);
 
         if (await tts.isSpeaking()) {
             await tts.stop();
@@ -284,7 +301,7 @@ export default function StoryPage() {
                         );
                     } else if(response.type == "N" && response.text == "") {
                         return(
-                            <LoadingTextbox/>
+                            <LoadingTextbox key={"LOADING-BOX"}/>
                         );
                     }
                     return (

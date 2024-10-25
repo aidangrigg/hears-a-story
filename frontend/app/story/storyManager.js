@@ -137,7 +137,7 @@ export class StoryGenerator {
         let sentiment = Emotions.HAPPY;
         try {
             const sentimentQuery = await emotionClassification(userResponse);
-            sentiment = sentimentQuery?.labels?.[0]
+            sentiment = sentimentQuery?.labels?.[0] || Emotions.HAPPY;
         } catch (e) {
             console.warn("Failed to get users sentiment, Error: ", e);
         }
@@ -271,7 +271,10 @@ export class StoryGenerator {
 
         await Storage.addEmotionStreamFragment(sentiment);
         
-        return result;
+        return {
+            text: result,
+            isEnded: story.isFinished
+        };
     }
 
     async populateMemoryStream(storyPart) { //creates observations based on the most recent part of the story (NOTE - there still needs to be a way to add these to the memory stream)
