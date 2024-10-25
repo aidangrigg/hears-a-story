@@ -109,7 +109,7 @@ export async function setStory(id: string, story: Story) {
  * Current story can be set by either creating a new story with isCurrent = true,
  * or using the function setCurrentStory.
  */
-export async function addMemoryStreamFragment(response_id: string, observation: string, location: string) {
+export async function addMemoryStreamFragment(response_id: string, observations: string) {
   let maybeCurrentStory = await getCurrentStory();
 
   if (maybeCurrentStory === null) {
@@ -119,7 +119,7 @@ export async function addMemoryStreamFragment(response_id: string, observation: 
 
   let story = maybeCurrentStory;
 
-  story.memoryStream.push({ response_id, observation, location });
+  story.memoryStream.push({ response_id, observations});
   setStory(story.id, story);
 }
 

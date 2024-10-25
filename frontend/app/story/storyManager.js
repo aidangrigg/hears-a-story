@@ -145,10 +145,9 @@ export class StoryGenerator {
         const context = await this.memoryRetrieval({
             userResponse,
             sentiment,
-            memoryStream: JSON.stringify(story.memoryStream.map((s) => {
+            memoryStream: JSON.stringify(story.memoryStream.slice(-4).map((s) => { //observations from the last 4 parts of the story
                 return {
                     observation: s.observation,
-                    location: s.location,
                 }
             }))
         });
@@ -259,24 +258,16 @@ export class StoryGenerator {
         await Storage.setStory(story.id, story);
 	
         const result = await this.generateParsedText(prompt);
-        const memoryStreamFragments = await this.populateMemoryStream(result);
+        const observations = await this.populateMemoryStream(result);
 
         console.log("result: ", result);
 
         const responseId = await Storage.addStoryResponse(StoryResponseType.NARRATOR, result);
 
-        // if we fail to parse the memory stream, ignore it and keep the story moving.
-        if (!memoryStreamFragments) {
-            return result;
-        }
-
-        for(const fragment of memoryStreamFragments) {
-            await Storage.addMemoryStreamFragment(
-                responseId,
-                fragment.observation,
-                fragment.location
-            );
-        }
+        await Storage.addMemoryStreamFragment(
+            responseId,
+            observations,
+        );
 
         await Storage.addEmotionStreamFragment(sentiment);
         
@@ -286,7 +277,7 @@ export class StoryGenerator {
     async populateMemoryStream(storyPart) { //creates observations based on the most recent part of the story (NOTE - there still needs to be a way to add these to the memory stream)
         console.log('Populating memory stream with observations based on the story excerpt');
 
-        const prompt = `You are an assistant tasked with creating a **memory stream**. Only include observations that have a direct impact on the user’s current decisions, actions, or future planning. Avoid repetitive or trivial details like smells or minor actions unless they directly affect the story's progression.
+        const prompt = `You are an assistant tasked with creating a **memory stream**. Only include observations that have a direct impact on the user's current decisions, actions, or future planning. Avoid repetitive or trivial details like smells or minor actions unless they directly affect the story's progression.
 
         For each part of the story, generate **key observations** by prioritizing:
         - Major decisions or actions.
@@ -296,40 +287,14 @@ export class StoryGenerator {
         Do not include minor or irrelevant details.
         
         Format your observations like this:
-        [
-          {
-            "observation": "<What the user observes or does in this part of the story>",
-            "location": "<Location in the story>"
-          },
-        ]
+        Observation: <What the user observes or does in this part of the story> | Location: <Location in the story>,
+        Observation: <What the user observes or does in this part of the story> | Location: <Location in the story>
         
         Based on the following story excerpt, generate the key memory stream:        
         "${storyPart}"
         `;
         let result = await this.generateText(prompt);
-
-        //Remove any backticks or markdown formatting
-        let cleanedResult = result.replace(/```json|```/g, '').trim();
-
-        // Clean the JSON string
-        let jsonString = this.cleanJsonString(cleanedResult);
-
-        // Attempt to parse the cleaned JSON
-        try {
-            let parsedData = JSON.parse(jsonString);
-            console.log('Parsed Data:', parsedData);
-            return parsedData;
-
-        } catch (error) {
-            console.error('Error parsing JSON:', error.message);
-            console.log('Raw Output:', jsonString); // Log the problematic output for review
-            return;
-        }
-    }
-
-    cleanJsonString(jsonString) {
-        // Remove any trailing commas before closing brackets
-        return jsonString.replace(/,(\s*[\]}])/g, '$1');
+            return result;
     }
 }
 
