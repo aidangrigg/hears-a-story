@@ -1,4 +1,4 @@
-//NOTE: NEEDS ACCESS TOKEN TO RUN - HF_ACCESS_TOKEN - Create a codes.js file in the same directory with the hugging face access token (HF_ACCESS_TOKEN)
+//NOTE: NEEDS ACCESS TOKEN TO RUN - HF_ACCESS_TOKEN - Create a codes.js file in the frontend/app directory with the hugging face access token (HF_ACCESS_TOKEN)
 
 // Description: This file contains the logic for story generation.
 
@@ -15,7 +15,7 @@ import { emotionClassification } from "../emotion_classification/emotionClassifi
 // import { createInterface } from 'readline'; //for testing with user input
 
 import { HfInference } from "@huggingface/inference";
-import { HF_ACCESS_TOKEN } from './codes.js'; //add a codes.js file in the same directory with the access token
+import { HF_ACCESS_TOKEN } from '../codes.js';
 
 export class StoryGenerator {
     constructor(story) {

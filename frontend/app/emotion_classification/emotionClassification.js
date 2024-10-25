@@ -1,5 +1,5 @@
 import { HfInference } from "@huggingface/inference"
-import { HF_ACCESS_TOKEN } from './codes.js';
+import { HF_ACCESS_TOKEN } from '../codes.js';
 import { Emotions } from "@/types/Story";
 const hf = new HfInference(HF_ACCESS_TOKEN)
 
