@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 import { useRoute } from "@react-navigation/native";
 import { NarratorTextbox, UserTextbox, Response, UserResponse, NarratorResponse, LoadingTextbox } from '@/components/ResponseBoxes';
 import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent, } from "expo-speech-recognition";
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Header } from "@/components/header";
 import * as Storage from "./story/storage";
 import { StoryGenerator } from "./story/storyManager";
@@ -29,6 +29,8 @@ export default function StoryPage() {
     const [isFinished, setIsFinished] = useState(false);
     const [chartData, setChartData] = useState<Array<any>>([]);
     const [transcript, setTranscript] = useState("")
+
+    const scrollView = useRef<ScrollView>(null);
 
     // Place function to play from beggining text to speech here
     const playfromStartBtnEvent = async (response: Response) => {
@@ -71,7 +73,7 @@ export default function StoryPage() {
 
         for (const [key, value] of Object.entries(emotionCount).slice(0, 5)) {
             setChartData(chartData => {
-                return [...chartData, { "label": key, "value": value, "labelTextStyle": { fontSize: 11, fontWeight: "bold" } }]
+                return [...chartData, { "label": key, "value": value, "labelTextStyle": { initialSpacing: 6, fontSize: 10.5, fontWeight: "bold" } }]
             })
         }
     };
@@ -222,14 +224,16 @@ export default function StoryPage() {
 
         if (!isEnded) {
             newResponses.push(userResponse);
+            await playTTS(narratorResponse, true);
         } else {
             await fetchChartData();
             setIsFinished(true);
+            await playTTS(narratorResponse, false);
         }
 
         setResponses(newResponses);
 
-        await playTTS(narratorResponse, true);
+        scrollView.current?.scrollToEnd({ animated: true });
     }
 
     return (
@@ -238,7 +242,7 @@ export default function StoryPage() {
                 title={storyProps?.title}
                 showBackButton={true}></Header>
 
-            <ScrollView style={styles.scrollStyle} >
+            <ScrollView ref={scrollView} style={styles.scrollStyle} >
                 {responses.map(response => {
                     if (response.type == "U") {
                         return (
