@@ -1,19 +1,17 @@
-import { View, ScrollView, Alert } from "react-native";
+import { View, ScrollView } from "react-native";
 import { StyleSheet } from 'react-native';
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useRoute } from "@react-navigation/native";
 import { NarratorTextbox, UserTextbox, Response, UserResponse, NarratorResponse, LoadingTextbox } from '@/components/ResponseBoxes';
 import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent, } from "expo-speech-recognition";
 import { useEffect, useState } from 'react';
-import Feather from '@expo/vector-icons/Feather';
 import { Header } from "@/components/header";
 import * as Storage from "./story/storage";
 import { StoryGenerator } from "./story/storyManager";
-import { StoryResponseType, Emotions } from "@/types/Story";
+import { StoryResponseType } from "@/types/Story";
 import { TTS } from "./story/tts";
 import { BarChart } from "react-native-gifted-charts";
 
 export default function StoryPage() {
-    const navigation: any = useNavigation();
     const route: any = useRoute();
     const { storyProps } = route.params;
 
@@ -234,66 +232,11 @@ export default function StoryPage() {
         await playTTS(narratorResponse, true);
     }
 
-    
-
-    const submitTranscript = (text: string) => {
-            const updatedResponses = responses.map(response => {
-                if (response === responses[responses.length-1]) {
-                    const newResponse = response;
-                    console.log(newResponse);
-                    newResponse.text = text;
-                    newResponse.editing = false;
-                    console.log(newResponse);
-                    return newResponse;
-                } else {
-                    return response;
-                }
-            });
-            setResponses(updatedResponses);
-        
-        
-    }
-
-
-    const editInputBtnEvent = (id: string) => {
-        const updatedResponses = responses.map(response => {
-            if (response.id === id) {
-                const newResponse = response;
-                newResponse.editing = true;
-                return newResponse;
-            } else {
-                return response;
-            }
-        });
-        setResponses(updatedResponses);
-    }
-    
-    const backBtnEvent = () => {
-        navigation.goBack();
-    }
-
-
-
-    const createResponse = (text: string, type: number) => {
-        let response: Response;
-
-        if (type == 0) {
-            response = new NarratorResponse(text);
-        } else {
-            response = new UserResponse(text);
-        }
-        return response;
-    }
-
     return (
         <View style={styles.pageStyle}>
             <Header
                 title={storyProps?.title}
                 showBackButton={true}></Header>
-            <View>
-                <Feather style={styles.backIcon} name="arrow-left-circle" size={30} color="white" backgroundColor="transparent" onPress={backBtnEvent} />
-
-            </View>
 
             <ScrollView style={styles.scrollStyle} >
                 {responses.map(response => {
