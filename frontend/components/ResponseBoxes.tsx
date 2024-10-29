@@ -52,19 +52,20 @@ interface NarratorTextboxProps {
     response: NarratorResponse;
     backBtn: buttonEvents;
     playBtn: any;
+    isPlaying: boolean;
 }
 
 
 
-export function NarratorTextbox({ response, backBtn, playBtn }: NarratorTextboxProps) {
-    if(response.playing == true){
+export function NarratorTextbox({ response, backBtn, playBtn, isPlaying }: NarratorTextboxProps) {
+    if(isPlaying){
         return (
             <View style={styles.narratorBox}>
                 <FontAwesome6 style={styles.narratorIcon} name="book-open-reader" size={30} color="rgba(0, 224, 255, 1)" />
                 <Text style={styles.narratorText}>{response.text}</Text>
                 <View style={styles.NarratorMenuView}>
                     <Entypo.Button style={styles.backIcon} name="controller-jump-to-start" size={20} color="rgba(0, 224, 255, 1)" backgroundColor="transparent" onPress={backBtn} />
-                    <Entypo.Button style={styles.playIcon} id="playButton" name="controller-paus" size={20} color="rgba(0, 224, 255, 1)" backgroundColor="transparent" onPress={playBtn} />
+                    <Entypo.Button style={styles.playIcon} id="playButton" name="controller-stop" size={20} color="rgba(0, 224, 255, 1)" backgroundColor="transparent" onPress={playBtn} />
                 </View>
             </View>
         );

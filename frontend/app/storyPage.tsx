@@ -24,6 +24,7 @@ export default function StoryPage() {
 
     const [voiceInputIsOver, setVoiceInputIsOver] = useState(false);
     const [currentResponseId, setCurrentResponseId] = useState("");
+    const [isTtsPlaying, setIsTtsPlaying] = useState(false);
 
     let timeoutId = 0;
     const [isFinished, setIsFinished] = useState(false);
@@ -38,11 +39,13 @@ export default function StoryPage() {
     }
 
     const playTTS = async (text: string, enableStt: boolean) => {
+        setIsTtsPlaying(true);
         if (await tts.isSpeaking()) {
             await tts.stop();
         }
         await tts.speak(text, {
             onEnd: () => {
+                setIsTtsPlaying(false);
                 if (enableStt) {
                     startRecording();
                 }
@@ -186,7 +189,12 @@ export default function StoryPage() {
 
     // Place function to play/pause text to speech here
     const playBtnEvent = async (response: Response) => {
-        await playTTS(response.text, false);
+        if (isTtsPlaying) {
+            setIsTtsPlaying(false);
+            tts.stop();
+        } else {
+            await playTTS(response.text, false);
+        }
     }
 
     const submitResponseBtnEvent = async (id: string) => {
@@ -266,6 +274,7 @@ export default function StoryPage() {
                             response={response}
                             backBtn={() => playfromStartBtnEvent(response)}
                             playBtn={() => playBtnEvent(response)}
+                            isPlaying={isTtsPlaying}
                         />
                     );
 
